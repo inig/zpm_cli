@@ -63,16 +63,18 @@ program
   .command('init')
   .description('初始化项目: zpm init [, project_template] [, project_name] [, project_path]')
   .action(function () {
+    let sep = path.sep;
+    let defaultPath = `.${sep}`;
     var questions = [];
     var projectInfo = {
       template: 'default',
       name: '',
-      path: './'
+      path: defaultPath
     };
 
     var allTemplates = [];
     var templateChoices = []
-    var templatesPath = path.resolve(__dirname, './templates');
+    var templatesPath = path.resolve(__dirname, `.${sep}templates`);
     let filenames = fs.readdirSync(templatesPath);
 
     filenames.forEach(function (fname) {
@@ -110,7 +112,7 @@ program
           type: 'input',
           name: 'project_path',
           message: '请输入项目路径',
-          default: args.length >= 6 ? args[5] : './'
+          default: args.length >= 6 ? args[5] : defaultPath
         }
       ]
     } else {
@@ -133,7 +135,7 @@ program
             type: 'input',
             name: 'project_path',
             message: '请输入项目路径',
-            default: './'
+            default: defaultPath
           }
         ]
       } else if (args.length === 4) {
@@ -149,14 +151,14 @@ program
             type: 'input',
             name: 'project_path',
             message: '请输入项目路径',
-            default: './'
+            default: defaultPath
           }
         ]
       } else if (args.length === 5) {
         projectInfo = {
           template: args[3].toLowerCase(),
           name: args[4],
-          path: './'
+          path: defaultPath
         }
       } else {
         projectInfo = {
@@ -176,19 +178,18 @@ program
       if (answers.project_path) {
         projectInfo.path = answers.project_path;
       }
-      var realPath = path.resolve(process.env.PWD, projectInfo.path);
-      realPath += '/' + projectInfo.name;
+      var realPath = path.resolve(process.cwd(), projectInfo.path);
+      realPath += sep + projectInfo.name;
       fs.exists(realPath, function (exists) {
         if (!exists) {
           shelljs.exec(`mkdir ${realPath}`);
         }
-        shelljs.exec(`cp -r ${path.join(__dirname, './')}/templates/${projectInfo.template}/* ${realPath}`, {silent:true}, function (code, stdout, stderr) {
-          if (code === 0) {
-            console.log(`${styles.green}`, `\n   模板添加成功`);
-          } else {
-            console.log(`${styles.magenta}`, stderr);
-          }
-        });
+        try {
+          shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}${sep}templates${sep}${projectInfo.template}${sep}*`, `${realPath}`)
+          console.log(`${styles.green}`, `\n   模板添加成功`);
+        } catch (err) {
+          console.log(`${styles.magenta}`, '\n   模板添加失败');
+        }
       });
     })
   });
