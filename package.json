@@ -1,7 +1,7 @@
 {
   "name": "zpm_cli",
   "description": "zpm cli",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "keywords": [
     "toolkit",
     "zpm",
