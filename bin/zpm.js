@@ -11,7 +11,7 @@ const shelljs = require('shelljs');
 const program = require('commander');
 const inquirer = require('inquirer');
 const pkg = require('../package.json');
-var prompt = inquirer.createPromptModule();
+let prompt = inquirer.createPromptModule();
 
 const styles = {
   'bold'          : '\x1B[1m%s\x1B[22m',
@@ -40,12 +40,34 @@ const styles = {
 };
 
 const validateName = function (input) {
-  var done = this.async();
+  let done = this.async();
 
   if (input.trim() === '') {
     done('项目名不能为空')
   }
   done(null, true);
+};
+
+const getAllPlugins = function () {
+  const sep = path.sep;
+  let templatesPath = path.resolve(__dirname, `.${sep}plugins`);
+  let filenames = fs.readdirSync(templatesPath);
+
+  let allPlugins = [];
+  let pluginChoice = [];
+  filenames.forEach(function (fname) {
+    let _realFilePath = path.join(templatesPath, fname);
+    let _stat = fs.statSync(_realFilePath);
+    if (_stat.isFile()) {
+      let _name = path.basename(fname, '.js');
+      allPlugins.push(_name);
+      pluginChoice.push({
+        name: _name,
+        value: _name
+      })
+    }
+  });
+  return [allPlugins, pluginChoice];
 };
 
 program
@@ -65,16 +87,16 @@ program
   .action(function () {
     let sep = path.sep;
     let defaultPath = `.${sep}`;
-    var questions = [];
-    var projectInfo = {
+    let questions = [];
+    let projectInfo = {
       template: 'default',
       name: '',
       path: defaultPath
     };
 
-    var allTemplates = [];
-    var templateChoices = []
-    var templatesPath = path.resolve(__dirname, `.${sep}templates`);
+    let allTemplates = [];
+    let templateChoices = []
+    let templatesPath = path.resolve(__dirname, `.${sep}templates`);
     let filenames = fs.readdirSync(templatesPath);
 
     filenames.forEach(function (fname) {
@@ -89,7 +111,7 @@ program
       }
     });
 
-    var args = process.argv;
+    let args = process.argv;
 
     if (allTemplates.indexOf(args[3]) < 0) {
       console.log(`${styles.red}`, `\n 模板 ${args[3]} 不存在\n`);
@@ -178,7 +200,7 @@ program
       if (answers.project_path) {
         projectInfo.path = answers.project_path;
       }
-      var realPath = path.resolve(process.cwd(), projectInfo.path);
+      let realPath = path.resolve(process.cwd(), projectInfo.path);
       realPath += sep + projectInfo.name;
       fs.exists(realPath, function (exists) {
         if (!exists) {
@@ -194,5 +216,30 @@ program
     })
   });
 
-program.parse(process.argv)
+program
+  .command('plugins')
+  .description('添加插件：zpm plugins [, 插件名]')
+  .action(function () {
+    let sep = path.sep;
+    let args = process.argv;
+    let questions = [];
+    let pluginInfo = {
+      plugins: []
+    };
+    if (args.length < 4) {
+      console.log(`${styles.magenta}`, '\n   命令有误');
+      console.log(`${styles.grey}`, '\n   所有命令如下：');
+      console.log(`${styles.grey}`, '\n     └── add (添加一个插件): zpm plugins add 插件名');
+    } else if (args.length < 5) {
+      let tul = getAllPlugins();
+      if (tul[0].length < 1) {
+        // 无可用插件
+        console.log(`${styles.magenta}`, '\n   无可用插件\n');
+      }
+      // console.log('.... all plugins: ', tul[0]);
+      // console.log('.... all plugin choice: ', tul[1]);
+    }
+  });
+
+program.parse(process.argv);
 
