@@ -17,7 +17,8 @@
   "dependencies": {
     "commander": "^2.11.0",
     "inquirer": "^3.3.0",
-    "shelljs": "^0.7.8"
+    "shelljs": "^0.7.8",
+    "colors": "^1.1.2"
   },
   "devDependencies": {},
   "scripts": {},

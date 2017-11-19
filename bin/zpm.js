@@ -11,33 +11,22 @@ const shelljs = require('shelljs');
 const program = require('commander');
 const inquirer = require('inquirer');
 const pkg = require('../package.json');
+const colors = require('colors');
 let prompt = inquirer.createPromptModule();
 
-const styles = {
-  'bold'          : '\x1B[1m%s\x1B[22m',
-  'italic'        : '\x1B[3m%s\x1B[23m',
-  'underline'     : '\x1B[4m%s\x1B[24m',
-  'inverse'       : '\x1B[7m%s\x1B[27m',
-  'strikethrough' : '\x1B[9m%s\x1B[29m',
-  'white'         : '\x1B[37m%s\x1B[39m',
-  'grey'          : '\x1B[90m%s\x1B[39m',
-  'black'         : '\x1B[30m%s\x1B[39m',
-  'blue'          : '\x1B[34m%s\x1B[39m',
-  'cyan'          : '\x1B[36m%s\x1B[39m',
-  'green'         : '\x1B[32m%s\x1B[39m',
-  'magenta'       : '\x1B[35m%s\x1B[39m',
-  'red'           : '\x1B[31m%s\x1B[39m',
-  'yellow'        : '\x1B[33m%s\x1B[39m',
-  'whiteBG'       : '\x1B[47m%s\x1B[49m',
-  'greyBG'        : '\x1B[49;5;8m%s\x1B[49m',
-  'blackBG'       : '\x1B[40m%s\x1B[49m',
-  'blueBG'        : '\x1B[44m%s\x1B[49m',
-  'cyanBG'        : '\x1B[46m%s\x1B[49m',
-  'greenBG'       : '\x1B[42m%s\x1B[49m',
-  'magentaBG'     : '\x1B[45m%s\x1B[49m',
-  'redBG'         : '\x1B[41m%s\x1B[49m',
-  'yellowBG'      : '\x1B[43m%s\x1B[49m'
-};
+colors.setTheme({
+  help: 'cyan',
+  debug: 'blue',
+  data: 'grey',
+  warnTag: ['white', 'bgYellow', 'bold'],
+  warn: 'yellow',
+  errorTag: ['white', 'bgRed'],
+  error: 'red',
+  infoTag: ['white', 'bgGreen'],
+  info: 'green',
+  successTag: ['white', 'bgGreen'],
+  success: 'green'
+});
 
 const validateName = function (input) {
   let done = this.async();
@@ -97,18 +86,15 @@ const pluginsCommandList = function (opts) {
     if (i === 0) { console.log(' '); }
 
     if (isEmptyObj(allPluginsConfig[i].value)) {
-      console.log(`${styles.green}`, `- ${allPluginsConfig[i].name}`);
+      console.log(`- ${allPluginsConfig[i].name}`.cyan);
     } else {
-      console.log(`${styles.green}`, `- ${allPluginsConfig[i].name}: ${allPluginsConfig[i].value.description}`);
-      console.log(`${styles.black}`, `   Author: ${allPluginsConfig[i].value.author.name} ${allPluginsConfig[i].value.author.email}`);
-      console.log(`${styles.grey}`, `   Latest: v${allPluginsConfig[i].value.version}`);
+      console.log(`- ${allPluginsConfig[i].name}:`.cyan, `${allPluginsConfig[i].value.description}`);
+      console.log(`    Author: ${allPluginsConfig[i].value.author.name} (${allPluginsConfig[i].value.author.email})`.data);
+      console.log(`    Latest: v${allPluginsConfig[i].value.version}`.data);
     }
 
     if (i === allPluginsConfig.length - 1) { console.log(' '); }
   }
-  // console.log(`${styles.grey}`, '\n   所有命令如下：');
-  // console.log(`${styles.grey}`, '\n     └── add   (添加一个插件): zpm plugins add 插件名');
-  // console.log(`${styles.grey}`, '\n     └── list  (显示所有插件): zpm plugins list\n');
 };
 
 const pluginsCommandAdd = function (opts) {
@@ -147,7 +133,7 @@ const pluginsCommandAdd = function (opts) {
   }
   if (illegalPlugins.length > 0) {
     // 不正确的插件名
-    console.log(`${styles.magenta}`, `\n  插件 ${illegalPlugins.join('、')} 不存在！\n`);
+    console.log('\n ERROR '.errorTag, `插件 ${illegalPlugins.join('、')} 不存在！\n`.error);
   }
   prompt(questions).then(function (answers) {
     if (answers.plugins) {
@@ -170,10 +156,10 @@ const pluginsCommandAdd = function (opts) {
         }
       });
       if (successInstalled.length > 0) {
-        console.log(`${styles.green}`, `\n  插件 ${successInstalled.join('、')} 添加成功\n`);
+        console.log('\n DONE '.successTag, '插件'.success, `${successInstalled.join('、')}`.success.bold.italic, '添加成功\n'.success);
       }
       if (failInstalled.length > 0) {
-        console.log(`${styles.magenta}`, `\n  插件 ${failInstalled.join('、')} 添加失败\n`);
+        console.log('\n ERROR '.errorTag, `插件 ${failInstalled.join('、')} 添加失败\n`.error);
       }
     });
   });
@@ -214,7 +200,7 @@ program
 
     let args = process.argv;
     if (allTemplates.indexOf(args[3]) < 0 && args.length > 3) {
-      console.log(`${styles.red}`, `\n 模板 ${args[3]} 不存在\n`);
+      console.log('\n ERROR '.errorTag, `模板 ${args[3]} 不存在\n`.error);
       questions = [
         {
           type: 'list',
@@ -308,9 +294,9 @@ program
         }
         try {
           shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}${sep}templates${sep}${projectInfo.template}${sep}*`, `${realPath}`)
-          console.log(`${styles.green}`, `\n   模板添加成功`);
+          console.log('\n DONE '.successTag, '模板'.success, `${projectInfo.template}`.success.bold.italic, '添加成功\n'.success);
         } catch (err) {
-          console.log(`${styles.magenta}`, '\n   模板添加失败');
+          console.log('\n ERROR '.errorTag, `模板 ${projectInfo.template} 添加失败\n`.error);
         }
       });
     })
@@ -323,16 +309,15 @@ program
     let args = process.argv;
     let tul = getAllPlugins();
     if (tul[0].length < 1) {
-      console.log(`${styles.magenta}`, '\n  暂时未实现任何插件\n');
+      console.log('\n WARN '.warnTag, '暂时未实现任何插件\n'.warn);
       return;
     }
     if (args.length < 4) {
-      console.log(`${styles.grey}`, '\n   所有命令如下：');
-      console.log(`${styles.grey}`, '\n     - add : 添加插件，可以同时添加多个插件，以空格区分');
-      console.log(`${styles.grey}`, '\n             zpm plugins add 插件名 [, 插件名]');
-      console.log(`${styles.grey}`, '\n     - list: 显示所有插件');
-      console.log(`${styles.grey}`, '\n             zpm plugins list\n');
-      // pluginsCommandList();
+      console.log('\n 所有命令如下：'.data);
+      console.log(' - add : 添加插件，可以同时添加多个插件，以空格区分'.data);
+      console.log('         zpm plugins add 插件名 [, 插件名]'.data);
+      console.log(' - list: 显示所有插件'.data);
+      console.log('         zpm plugins list\n'.data);
     } else {
       switch (args[3]) {
         case 'list':
@@ -349,12 +334,12 @@ program
           });
           break;
         default:
-          console.log(`${styles.magenta}`, '\n   命令有误');
-          console.log(`${styles.grey}`, '\n   所有命令如下：');
-          console.log(`${styles.grey}`, '\n     - add : 添加插件，可以同时添加多个插件，以空格区分');
-          console.log(`${styles.grey}`, '\n             zpm plugins add 插件名 [, 插件名]');
-          console.log(`${styles.grey}`, '\n     - list: 显示所有插件');
-          console.log(`${styles.grey}`, '\n             zpm plugins list\n');
+          console.log('\n ERROR '.errorTag, '命令有误'.error);
+          console.log('\n 所有命令如下：'.data);
+          console.log(' - add : 添加插件，可以同时添加多个插件，以空格区分'.data);
+          console.log('         zpm plugins add 插件名 [, 插件名]'.data);
+          console.log(' - list: 显示所有插件'.data);
+          console.log('         zpm plugins list\n'.data);
           break;
       }
     }
