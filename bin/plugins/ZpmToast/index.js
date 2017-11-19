@@ -33,8 +33,8 @@
 /**
  * Created by liangshan on 2017/11/17.
  */
-let subTemplate = '<div class="zpm-toast-inner {{{POSITION}}} {{{TYPE}}} {{{SHOWN}}}"><text class="toast-content">{{{CONTENT}}}</text></div>';
-const template = `<div id="{{{ID}}}">${subTemplate}</div>`;
+let subTemplate = '<div class="zpm-toast-inner {{{POSITION}}} {{{TYPE}}} {{{SHOWN}}}"><text class="toast-content">{{{CONTENT}}}</text></div>'
+const template = `<div id="{{{ID}}}">${subTemplate}</div>`
 function S4 () {
   return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
 }
@@ -46,10 +46,10 @@ function getTemplate (opts) {
     .replace(/{{{CONTENT}}}/, opts.content)
     .replace(/{{{POSITION}}}/, opts.position)
     .replace(/{{{TYPE}}}/, opts.type)
-    .replace(/{{{SHOWN}}}/, opts.shown ? 'shown' : 'hidden');
+    .replace(/{{{SHOWN}}}/, opts.shown ? 'shown' : 'hidden')
 }
 function isEmptyObj (obj) {
-  var t;
+  var t
   for (t in obj)
     return !1
   return !0
@@ -58,7 +58,7 @@ function getSubTemplate (opts) {
   return subTemplate.replace(/{{{CONTENT}}}/, opts.content)
     .replace(/{{{POSITION}}}/, opts.position)
     .replace(/{{{TYPE}}}/, opts.type)
-    .replace(/{{{SHOWN}}}/, opts.shown ? 'shown' : 'hidden');
+    .replace(/{{{SHOWN}}}/, opts.shown ? 'shown' : 'hidden')
 }
 function getStyles (opts) {
   let outStyle = `
@@ -160,46 +160,53 @@ function getStyles (opts) {
       #${opts.id} .zpm-toast-inner.error {
         background-color: ${opts.bgColor || 'rgba(217, 83, 79, .9)'};
       }
-    `;
-  return outStyle;
+    `
+  return outStyle
 }
 function addStyles (opts) {
-  let str = getStyles(opts);
-  let sty = document.querySelector(`#style-${opts.id}`);
+  let str = getStyles(opts)
+  let sty = document.querySelector(`#style-${opts.id}`)
   if (!sty) {
-    sty = document.createElement('style');
-    sty.type = 'text/css';
+    sty = document.createElement('style')
+    sty.type = 'text/css'
     sty.id = `style-${opts.id}`
     if (sty.styleSheet) {
-      sty.styleSheet.cssText = str;
+      sty.styleSheet.cssText = str
     } else {
-      sty.innerHTML = str;
+      sty.innerHTML = str
     }
-    document.getElementsByTagName('head')[0].appendChild(sty);
+    document.getElementsByTagName('head')[0].appendChild(sty)
   } else {
     if (sty.styleSheet) {
-      sty.styleSheet.cssText = str;
+      sty.styleSheet.cssText = str
     } else {
-      sty.innerHTML = str;
+      sty.innerHTML = str
     }
   }
 }
-function addTemplate (opts) {
-  document.body.innerHTML += getTemplate(opts);
+function addTemplate (opts, vueInstance) {
+  /**
+   * 加上一个timeout，用于保证vue生命周期的created钩子函数中也能调用该插件的方法。
+   */
+  setTimeout(function () {
+    if (vueInstance._isMounted) {
+      document.body.innerHTML += getTemplate(opts)
+    }
+  }, 0)
 }
 function replaceSubTemplate (opts) {
-  document.querySelector(`#${opts.id}`).innerHTML = getSubTemplate(opts);
+  document.querySelector(`#${opts.id}`).innerHTML = getSubTemplate(opts)
 }
-let ZpmToast = {};
+let ZpmToast = {}
 ZpmToast.install = function (Vue, opts) {
-  const that = this;
-  if (ZpmToast.installed) return;
+  const that = this
+  if (ZpmToast.installed) return
 
-  let toastId = `zpm-toast-${getUUID()}`;
-  that.zpmToast = {};
+  let toastId = `zpm-toast-${getUUID()}`
+  that.zpmToast = {}
 
   let options = Object.assign({
-    root: '#root',
+    root: '#root', // 暂时没用
     type: 'success',
     position: 'center',
     content: '提示',
@@ -208,49 +215,50 @@ ZpmToast.install = function (Vue, opts) {
     color: ''
   }, opts, {
     id: toastId
-  });
+  })
   Vue.prototype.showToast = function (params) {
+    const vueInstance = this
     Object.assign(options, {
       bgColor: '',
       color: ''
     }, params, {
       shown: true
-    });
+    })
     if (isEmptyObj(that.zpmToast)) {
       Object.assign(that.zpmToast, {
         shown: true,
         id: toastId,
         timeout: null
-      });
-      addStyles(options);
-      addTemplate(options);
+      })
+      addStyles(options)
+      addTemplate(options, vueInstance)
     } else {
       Object.assign(that.zpmToast, {
         shown: true
-      });
-      addStyles(options);
-      replaceSubTemplate(options);
+      })
+      addStyles(options)
+      replaceSubTemplate(options)
     }
 
     if (that.zpmToast.timeout) {
-      clearTimeout(that.zpmToast.timeout);
+      clearTimeout(that.zpmToast.timeout)
     }
     that.zpmToast.timeout = setTimeout(function () {
-      hideToast();
-    }, options.duration);
+      hideToast()
+    }, options.duration)
   }
   const hideToast = function () {
     Object.assign(options, {
       shown: false
-    });
+    })
     Object.assign(that.zpmToast, {
       shown: false
-    });
-    replaceSubTemplate(options);
+    })
+    replaceSubTemplate(options)
     if (that.zpmToast.timeout) {
-      clearTimeout(that.zpmToast.timeout);
+      clearTimeout(that.zpmToast.timeout)
     }
-  };
-  Vue.prototype.hideToast = hideToast;
+  }
+  Vue.prototype.hideToast = hideToast
 }
-export default ZpmToast;
+export default ZpmToast
