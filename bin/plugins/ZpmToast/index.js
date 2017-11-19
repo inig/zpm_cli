@@ -195,7 +195,9 @@ function addTemplate (opts, vueInstance) {
   }, 0)
 }
 function replaceSubTemplate (opts) {
-  document.querySelector(`#${opts.id}`).innerHTML = getSubTemplate(opts)
+  setTimeout(function () {
+    document.querySelector(`#${opts.id}`).innerHTML = getSubTemplate(opts)
+  }, 0)
 }
 let ZpmToast = {}
 ZpmToast.install = function (Vue, opts) {
