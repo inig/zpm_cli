@@ -14,17 +14,19 @@ const pkg = require('../package.json');
 const colors = require('colors');
 let prompt = inquirer.createPromptModule();
 
+const pluginSuffix = '.vue';
+
 colors.setTheme({
   help: 'cyan',
   debug: 'blue',
   data: 'grey',
-  warnTag: ['white', 'bgYellow', 'bold'],
+  warnTag: ['black', 'bgYellow', 'bold'],
   warn: 'yellow',
-  errorTag: ['white', 'bgRed'],
+  errorTag: ['black', 'bgRed'],
   error: 'red',
-  infoTag: ['white', 'bgGreen'],
+  infoTag: ['black', 'bgGreen'],
   info: 'green',
-  successTag: ['white', 'bgGreen'],
+  successTag: ['black', 'bgGreen'],
   success: 'green'
 });
 
@@ -44,6 +46,19 @@ const isEmptyObj = function (obj) {
   return !0
 };
 
+/**
+ * 显示所有脚手架命令
+ */
+const showAllCommands = function () {
+  console.log('\n 所有命令如下：'.data);
+  console.log(' - add : 添加插件，可以同时添加多个插件，以空格区分'.data);
+  console.log('         zpm plugins add 插件名 [, 插件名]'.data);
+  console.log(' - list: 显示所有插件'.data);
+  console.log('         zpm plugins list'.data);
+  console.log(' - sync: 同步所有插件'.data);
+  console.log('         zpm sync\n'.data);
+};
+
 const getAllPlugins = function () {
   const sep = path.sep;
   let templatesPath = path.resolve(__dirname, `.${sep}plugins`);
@@ -57,7 +72,7 @@ const getAllPlugins = function () {
     let _stat = fs.statSync(_realFilePath);
     if (_stat.isDirectory()) {
       let _realFiles = fs.readdirSync(_realFilePath);
-      if (_realFiles.indexOf('index.js') > -1) {
+      if (_realFiles.indexOf(`index${pluginSuffix}`) > -1) {
         // 存在index.js，则认为是有效的插件
         allPlugins.push(fname);
         pluginChoice.push({
@@ -140,7 +155,7 @@ const pluginsCommandAdd = function (opts) {
       pluginInfo.plugins = answers.plugins;
       legalPlugins = answers.plugins;
     }
-    let realPath = path.resolve(process.cwd(), './plugins');
+    let realPath = path.resolve(process.cwd(), `.${sep}plugins`);
     fs.exists(realPath, function (exists) {
       if (!exists) {
         shelljs.exec(`mkdir ${realPath}`);
@@ -149,7 +164,7 @@ const pluginsCommandAdd = function (opts) {
       let failInstalled = [];
       legalPlugins.forEach(function (plugin) {
         try {
-          shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}plugins${sep}${plugin}${sep}index.js`, `${realPath}${sep}${plugin}.js`);
+          shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}plugins${sep}${plugin}${sep}index${pluginSuffix}`, `${realPath}${sep}${plugin}.vue`);
           successInstalled.push(plugin);
         } catch (err) {
           failInstalled.push(plugin);
@@ -163,6 +178,46 @@ const pluginsCommandAdd = function (opts) {
       }
     });
   });
+};
+
+/**
+ * 同步所有可用的插件
+ * @param callback
+ */
+const syncPlugins = function (callback) {
+  const sep = path.sep
+  shelljs.exec('curl -o plugins.zip https://codeload.github.com/lsliangshan/zpm_plugins/zip/master', {silent: true}, function (code, stdout, stderr) {
+    if (code === 0) {
+      // 下载成功
+      shelljs.exec('tar -xzf plugins.zip', function (unzipCode) {
+        if (unzipCode === 0) {
+          // 删除zip文件
+          shelljs.exec('rm -rf plugins.zip', {silent: true});
+          let pluginPath = path.resolve(__dirname, `.${sep}plugins`);
+          fs.exists(pluginPath, function (exists) {
+            if (!exists) {
+              shelljs.exec(`mkdir ${pluginPath}`);
+            }
+          });
+          shelljs.cp('-R', path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins${sep}*`), pluginPath);
+          console.log('\n DONE '.successTag, '插件同步成功'.success);
+          let stats = fs.readdirSync(path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins`));
+          if (stats) {
+            if (stats.length > 0) {
+              console.log('\n 同步的插件有：'.grey)
+              console.log(` ${stats.join('\n')}`.info)
+              callback && callback();
+            } else {
+              console.log('\n WARN '.warnTag, '未找到任何插件'.warn);
+            }
+          }
+        }
+      })
+    } else {
+      // 下载失败
+      console.log('\n ERROR '.errorTag, '同步插件失败，请重试'.error);
+    }
+  })
 };
 
 program
@@ -309,15 +364,12 @@ program
     let args = process.argv;
     let tul = getAllPlugins();
     if (tul[0].length < 1) {
-      console.log('\n WARN '.warnTag, '暂时未实现任何插件\n'.warn);
+      console.log('\n WARN '.warnTag, '未找到任何插件'.warn);
+      console.log('\n 输入 "zpm sync" 同步所有可用的插件\n'.data);
       return;
     }
     if (args.length < 4) {
-      console.log('\n 所有命令如下：'.data);
-      console.log(' - add : 添加插件，可以同时添加多个插件，以空格区分'.data);
-      console.log('         zpm plugins add 插件名 [, 插件名]'.data);
-      console.log(' - list: 显示所有插件'.data);
-      console.log('         zpm plugins list\n'.data);
+      showAllCommands();
     } else {
       switch (args[3]) {
         case 'list':
@@ -335,14 +387,16 @@ program
           break;
         default:
           console.log('\n ERROR '.errorTag, '命令有误'.error);
-          console.log('\n 所有命令如下：'.data);
-          console.log(' - add : 添加插件，可以同时添加多个插件，以空格区分'.data);
-          console.log('         zpm plugins add 插件名 [, 插件名]'.data);
-          console.log(' - list: 显示所有插件'.data);
-          console.log('         zpm plugins list\n'.data);
+          showAllCommands();
           break;
       }
     }
+  });
+
+program
+  .command('sync')
+  .action(function () {
+    syncPlugins();
   });
 
 program.parse(process.argv);
