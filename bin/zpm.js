@@ -186,22 +186,22 @@ const pluginsCommandAdd = function (opts) {
  */
 const syncPlugins = function (callback) {
   const sep = path.sep
-  shelljs.exec('curl -o plugins.zip https://codeload.github.com/lsliangshan/zpm_plugins/zip/master', {silent: true}, function (code, stdout, stderr) {
+  shelljs.exec(`curl -o ${path.resolve(process.cwd(), '.' + sep + 'plugins.zip')} https://codeload.github.com/lsliangshan/zpm_plugins/zip/master`, {silent: true}, function (code, stdout, stderr) {
     if (code === 0) {
       // 下载成功
       shelljs.exec('tar -xzf plugins.zip', function (unzipCode) {
         if (unzipCode === 0) {
           // 删除zip文件
           shelljs.exec('rm -rf plugins.zip', {silent: true});
-          let pluginPath = path.resolve(__dirname, `.${sep}plugins`);
+          let pluginPath = path.resolve(process.cwd(), `.${sep}plugins`);
           fs.exists(pluginPath, function (exists) {
             if (!exists) {
               shelljs.exec(`mkdir ${pluginPath}`);
             }
           });
-          shelljs.cp('-R', path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins${sep}*`), pluginPath);
+          shelljs.cp('-R', path.resolve(process.cwd(), `..${sep}zpm_plugins-master${sep}plugins${sep}*`), pluginPath);
           console.log('\n DONE '.successTag, '插件同步成功'.success);
-          let stats = fs.readdirSync(path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins`));
+          let stats = fs.readdirSync(path.resolve(process.cwd(), `..${sep}zpm_plugins-master${sep}plugins`));
           if (stats) {
             if (stats.length > 0) {
               console.log('\n 同步的插件有：'.grey)
