@@ -1,7 +1,7 @@
 {
   "name": "zpm_cli",
   "description": "zpm cli",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "keywords": [
     "toolkit",
     "zpm",
@@ -15,10 +15,11 @@
     "zpm": "./bin/zpm.js"
   },
   "dependencies": {
+    "colors": "^1.1.2",
     "commander": "^2.11.0",
     "inquirer": "^3.3.0",
     "shelljs": "^0.7.8",
-    "colors": "^1.1.2"
+    "unzip": "^0.1.11"
   },
   "devDependencies": {},
   "scripts": {},

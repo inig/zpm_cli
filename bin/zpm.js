@@ -12,6 +12,7 @@ const program = require('commander');
 const inquirer = require('inquirer');
 const pkg = require('../package.json');
 const colors = require('colors');
+const unzip = require('unzip');
 let prompt = inquirer.createPromptModule();
 
 const pluginSuffix = '.vue';
@@ -164,7 +165,7 @@ const pluginsCommandAdd = function (opts) {
       let failInstalled = [];
       legalPlugins.forEach(function (plugin) {
         try {
-          shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}plugins${sep}${plugin}${sep}index${pluginSuffix}`, `${realPath}${sep}${plugin}.vue`);
+          shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}/plugins${sep}${plugin}${sep}index${pluginSuffix}`, `${realPath}${sep}${plugin}.vue`);
           successInstalled.push(plugin);
         } catch (err) {
           failInstalled.push(plugin);
@@ -189,34 +190,50 @@ const syncPlugins = function (callback) {
   shelljs.exec(`curl -o ${path.resolve(__dirname, '..' + sep + 'plugins.zip')} https://codeload.github.com/lsliangshan/zpm_plugins/zip/master`, {silent: true}, function (code, stdout, stderr) {
     if (code === 0) {
       // 下载成功
-      shelljs.exec(`cd ${path.resolve(__dirname, '..' + sep)} && tar -xzf ${'.' + sep + 'plugins.zip'}`, function (unzipCode, stdout1, stderr1) {
-        if (unzipCode === 0) {
-          // 删除zip文件
-          shelljs.exec(`rm -rf ${path.resolve(__dirname, '..' + sep + 'plugins.zip')}`, {silent: true});
-          let pluginPath = path.resolve(__dirname, `.${sep}plugins`);
-          fs.exists(pluginPath, function (exists) {
-            if (!exists) {
-              shelljs.exec(`mkdir ${pluginPath}`);
-            }
-          });
-          try {
-            shelljs.cp('-R', path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins${sep}*`), pluginPath);
-            console.log('\n DONE '.successTag, '插件同步成功'.success);
-            let stats = fs.readdirSync(path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins`));
-            if (stats) {
-              if (stats.length > 0) {
-                console.log('\n 同步的插件有：'.grey)
-                console.log(` ${stats.join('\n')}`.info)
-                callback && callback();
-              } else {
-                console.log('\n WARN '.warnTag, '未找到任何插件'.warn);
+      try {
+        let readerStream = fs.createReadStream(`${path.resolve(__dirname, '..' + sep + 'plugins.zip')}`);
+        readerStream
+          .pipe(unzip.Extract({
+            path: `${path.resolve(__dirname, '..' + sep)}`
+          }));
+        readerStream.on('end', () => {
+          setTimeout(() => {
+            // 删除zip文件
+            shelljs.exec(`rm -rf ${path.resolve(__dirname, '..' + sep + 'plugins.zip')}`, {silent: true});
+            let pluginPath = path.resolve(__dirname, `.${sep}plugins`);
+            fs.exists(pluginPath, function (exists) {
+              if (!exists) {
+                shelljs.exec(`mkdir ${pluginPath}`);
               }
-            }
-          } catch (err) {
-            console.log('\n ERROR '.errorTag, '插件同步失败'.error);
-          }
-        }
-      })
+              try {
+                shelljs.cp('-R', path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins${sep}*`), pluginPath);
+                setTimeout(() => {
+                  console.log('\n DONE '.successTag, '插件同步成功'.success);
+                  let stats = fs.readdirSync(path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins`));
+                  if (stats) {
+                    if (stats.length > 0) {
+                      console.log('\n 同步的插件有：'.grey)
+                      console.log(` ${stats.join('\n')}`.info)
+                      callback && callback();
+                    } else {
+                      console.log('\n WARN '.warnTag, '未找到任何插件'.warn);
+                    }
+                  }
+                }, 200)
+              } catch (err) {
+                console.log('\n ERROR '.errorTag, `插件同步失败${err}`.error);
+              }
+            });
+          }, 300)
+        });
+      } catch (err) {
+
+      }
+      // shelljs.exec(`cd ${path.resolve(__dirname, '..' + sep)} && tar -xzf ${'.' + sep + 'plugins.zip'}`, function (unzipCode, stdout1, stderr1) {
+      //   if (unzipCode === 0) {
+      //
+      //   }
+      // })
     } else {
       // 下载失败
       console.log('\n ERROR '.errorTag, '同步插件失败，请重试'.error);
@@ -352,7 +369,7 @@ program
           shelljs.exec(`mkdir ${realPath}`);
         }
         try {
-          shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}templates${sep}${projectInfo.template}${sep}*`, `${realPath}`)
+          shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}/templates${sep}${projectInfo.template}${sep}*`, `${realPath}`)
           console.log('\n DONE '.successTag, '模板'.success, `${projectInfo.template}`.success.bold.italic, '添加成功\n'.success);
         } catch (err) {
           console.log('\n ERROR '.errorTag, `模板 ${projectInfo.template} 添加失败\n`.error);
