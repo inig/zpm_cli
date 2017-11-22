@@ -189,7 +189,7 @@ const syncPlugins = function (callback) {
   shelljs.exec(`curl -o ${path.resolve(__dirname, '..' + sep + 'plugins.zip')} https://codeload.github.com/lsliangshan/zpm_plugins/zip/master`, {silent: true}, function (code, stdout, stderr) {
     if (code === 0) {
       // 下载成功
-      shelljs.exec(`tar -xzf ${path.resolve(__dirname, '..' + sep + 'plugins.zip')}`, function (unzipCode) {
+      shelljs.exec(`cd ${path.resolve(__dirname, '..' + sep)} && tar -xzf ${'.' + sep + 'plugins.zip'}`, function (unzipCode, stdout1, stderr1) {
         if (unzipCode === 0) {
           // 删除zip文件
           shelljs.exec(`rm -rf ${path.resolve(__dirname, '..' + sep + 'plugins.zip')}`, {silent: true});
@@ -199,17 +199,21 @@ const syncPlugins = function (callback) {
               shelljs.exec(`mkdir ${pluginPath}`);
             }
           });
-          shelljs.cp('-R', path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins${sep}*`), pluginPath);
-          console.log('\n DONE '.successTag, '插件同步成功'.success);
-          let stats = fs.readdirSync(path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins`));
-          if (stats) {
-            if (stats.length > 0) {
-              console.log('\n 同步的插件有：'.grey)
-              console.log(` ${stats.join('\n')}`.info)
-              callback && callback();
-            } else {
-              console.log('\n WARN '.warnTag, '未找到任何插件'.warn);
+          try {
+            shelljs.cp('-R', path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins${sep}*`), pluginPath);
+            console.log('\n DONE '.successTag, '插件同步成功'.success);
+            let stats = fs.readdirSync(path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins`));
+            if (stats) {
+              if (stats.length > 0) {
+                console.log('\n 同步的插件有：'.grey)
+                console.log(` ${stats.join('\n')}`.info)
+                callback && callback();
+              } else {
+                console.log('\n WARN '.warnTag, '未找到任何插件'.warn);
+              }
             }
+          } catch (err) {
+            console.log('\n ERROR '.errorTag, '插件同步失败'.error);
           }
         }
       })
