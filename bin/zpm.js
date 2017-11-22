@@ -51,48 +51,57 @@ const isEmptyObj = function (obj) {
  * 显示所有脚手架命令
  */
 const showAllCommands = function () {
-  console.log('\n 所有命令如下：'.data);
-  console.log(' - add : 添加插件，可以同时添加多个插件，以空格区分'.data);
-  console.log('         zpm plugins add 插件名 [, 插件名]'.data);
-  console.log(' - list: 显示所有插件'.data);
-  console.log('         zpm plugins list'.data);
-  console.log(' - sync: 同步所有插件'.data);
-  console.log('         zpm sync\n'.data);
+  console.log('\n 所有命令如下'.data);
+  console.log(' - init        添加模板'.data);
+  console.log('               zpm init [, project_template] [, project_name] [, project_path]'.data);
+  console.log(' - list, ls    显示所有命令'.data);
+  console.log('               zpm list'.data);
+  console.log(' - sync        同步所有插件'.data);
+  console.log('               zpm sync\n'.data);
+};
+const showAllPluginsCommands = function () {
+  console.log('\n 所有命令如下'.data);
+  console.log(' - add         添加插件，可以同时添加多个插件，以空格区分'.data);
+  console.log('               zpm plugins add [, 插件名]'.data);
+  console.log(' - list, ls    显示所有插件'.data);
+  console.log('               zpm plugins list\n'.data);
 };
 
 const getAllPlugins = function () {
   const sep = path.sep;
   let templatesPath = path.resolve(__dirname, `.${sep}plugins`);
-  let filenames = fs.readdirSync(templatesPath);
-
   let allPlugins = [];
   let allPluginsConfig = [];
   let pluginChoice = [];
-  filenames.forEach(function (fname) {
-    let _realFilePath = path.join(templatesPath, fname);
-    let _stat = fs.statSync(_realFilePath);
-    if (_stat.isDirectory()) {
-      let _realFiles = fs.readdirSync(_realFilePath);
-      if (_realFiles.indexOf(`index${pluginSuffix}`) > -1) {
-        // 存在index.js，则认为是有效的插件
-        allPlugins.push(fname);
-        pluginChoice.push({
-          name: fname,
-          value: fname
-        });
-        let _config = {};
-        try {
-          _config = require(path.join(_realFilePath, 'package.json'));
-        } catch (err) {
-          _config = {};
+  let exists = fs.existsSync(templatesPath);
+  if (exists) {
+    let filenames = fs.readdirSync(templatesPath);
+    filenames.forEach(function (fname) {
+      let _realFilePath = path.join(templatesPath, fname);
+      let _stat = fs.statSync(_realFilePath);
+      if (_stat.isDirectory()) {
+        let _realFiles = fs.readdirSync(_realFilePath);
+        if (_realFiles.indexOf(`index${pluginSuffix}`) > -1) {
+          // 存在index.js，则认为是有效的插件
+          allPlugins.push(fname);
+          pluginChoice.push({
+            name: fname,
+            value: fname
+          });
+          let _config = {};
+          try {
+            _config = require(path.join(_realFilePath, 'package.json'));
+          } catch (err) {
+            _config = {};
+          }
+          allPluginsConfig.push({
+            name: fname,
+            value: _config
+          });
         }
-        allPluginsConfig.push({
-          name: fname,
-          value: _config
-        });
       }
-    }
-  });
+    });
+  }
   return [allPlugins, pluginChoice, allPluginsConfig];
 };
 
@@ -104,9 +113,9 @@ const pluginsCommandList = function (opts) {
     if (isEmptyObj(allPluginsConfig[i].value)) {
       console.log(`- ${allPluginsConfig[i].name}`.cyan);
     } else {
-      console.log(`- ${allPluginsConfig[i].name}:`.cyan, `${allPluginsConfig[i].value.description}`);
-      console.log(`    Author: ${allPluginsConfig[i].value.author.name} (${allPluginsConfig[i].value.author.email})`.data);
-      console.log(`    Latest: v${allPluginsConfig[i].value.version}`.data);
+      console.log(`- ${allPluginsConfig[i].name}  `.cyan, `${allPluginsConfig[i].value.description}`);
+      console.log(`    Author   ${allPluginsConfig[i].value.author.name} (${allPluginsConfig[i].value.author.email})`.data);
+      console.log(`    Latest   v${allPluginsConfig[i].value.version}`.data);
     }
 
     if (i === allPluginsConfig.length - 1) { console.log(' '); }
@@ -202,8 +211,9 @@ const syncPlugins = function (callback) {
           let stats = fs.readdirSync(path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins`));
           if (stats) {
             if (stats.length > 0) {
-              console.log('\n 同步的插件有：'.grey)
-              console.log(` ${stats.join('\n')}`.info)
+              console.log('\n 同步的插件有'.grey);
+              console.log(` ${stats.join('\n')}`.info);
+              console.log(' ');
               callback && callback();
             } else {
               console.log('\n WARN '.warnTag, '未找到任何插件'.warn);
@@ -358,7 +368,7 @@ program
 
 program
   .command('plugins')
-  .description('添加插件：zpm plugins [, 插件名]')
+  .description('添加插件：zpm plugins [, 操作名] [, 插件名]')
   .action(function () {
     let args = process.argv;
     let tul = getAllPlugins();
@@ -386,7 +396,7 @@ program
           break;
         default:
           console.log('\n ERROR '.errorTag, '命令有误'.error);
-          showAllCommands();
+          showAllPluginsCommands();
           break;
       }
     }
@@ -396,6 +406,17 @@ program
   .command('sync')
   .action(function () {
     syncPlugins();
+  });
+
+program
+  .command('list')
+  .action(function () {
+    showAllCommands();
+  });
+program
+  .command('ls')
+  .action(function () {
+    showAllCommands();
   });
 
 program.parse(process.argv);

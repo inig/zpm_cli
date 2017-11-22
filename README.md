@@ -10,7 +10,7 @@ sudo npm install zpm_cli -g
 zpm init [, project_template] [, project_name] [, project_path]
 ```
 
-### 3. 可用模板
+##### 1) 可用模板
 ###### 模板名 大小写不敏感
 ```$xslt
 default 空白项目
@@ -18,15 +18,13 @@ default 空白项目
 vuex    包含vuex的项目
 ```
 
-### 4. 项目结构
-
+##### 2) 模板目录结构
 ###### 目前脚手架提供了2套模板：default、vuex。
-   
-##### default模板的目录结构: 
+###### default模板的目录结构: 
 ```$xslt
   ├── assets              // 静态资源目录
  
-  ├── components          // 组件目录
+  ├── plugins             // 插件目录
     
   ├── components          // 组件目录
    
@@ -36,9 +34,11 @@ vuex    包含vuex的项目
     
   ├── index.vue           // 根vue文件  
 ```
-##### vuex模板的目录结构: 
+###### vuex模板的目录结构: 
 ```$xslt
   ├── assets              // 静态资源目录
+ 
+  ├── plugins             // 插件目录
  
   ├── components          // 组件目录
       
@@ -71,4 +71,10 @@ vuex    包含vuex的项目
   ├── index.server.js     // 服务端渲染的html
     
   ├── index.vue           // 根vue文件
+```
+
+### 3. 添加插件
+###### 添加插件，可同时添加多个插件，用空格区分 
+```$xslt
+zpm plugins add [, plugin_name1 [, plugin_name2]]
 ```
