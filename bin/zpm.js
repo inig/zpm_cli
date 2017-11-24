@@ -182,6 +182,32 @@ const pluginsCommandAdd = function (opts) {
       });
       if (successInstalled.length > 0) {
         console.log('\n DONE '.successTag, '插件'.success, `${successInstalled.join('、')}`.success.bold.italic, '添加成功\n'.success);
+
+        // 导入并全局注册所有.vue组件
+        let indexPath = path.resolve(process.cwd(), `.${sep}plugins${sep}index.js`)
+        let txt = ''
+        fs.readFile(indexPath, {encoding: 'utf-8'}, (err, bytesRead) => {
+          txt = bytesRead || ''
+          for (let i = 0; i < successInstalled.length; i++) {
+            let comName = successInstalled[i]
+              .replace(/^([A-Z])/, function ($1) { return $1.toLowerCase() })
+              .replace(/([A-Z])/g, function ($1) { return '-' + $1.toLowerCase() })
+            if (txt === '') {
+              txt = `import ${successInstalled[i]} from '.${sep}${successInstalled[i]}.vue'\n` + txt
+              txt += `Vue.component('${comName}', ${successInstalled[i]})\n`
+            } else {
+              if (txt.indexOf(successInstalled[i]) < 0) {
+                txt = `import ${successInstalled[i]} from '.${sep}${successInstalled[i]}.vue'\n` + txt
+                txt += `Vue.component('${comName}', ${successInstalled[i]})\n`
+              }
+            }
+          }
+          if (txt.indexOf('from \'vue\'') < 0 && txt.indexOf('from "vue"') < 0) {
+            // 没有vue，导入vue
+            txt = 'import Vue from \'vue\'\n' + txt
+          }
+          (txt !== bytesRead) && fs.writeFileSync(indexPath, txt)
+        })
       }
       if (failInstalled.length > 0) {
         console.log('\n ERROR '.errorTag, `插件 ${failInstalled.join('、')} 添加失败\n`.error);
