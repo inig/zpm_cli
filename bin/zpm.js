@@ -137,10 +137,25 @@ const pluginsCommandAdd = function (opts) {
   // 存在的插件
   let legalPlugins = [];
   newPlugins.forEach(function (p) {
-    if (plugins.indexOf(p) < 0) {
-      illegalPlugins.push(p);
+    if (p.indexOf('*') < 0) {
+      // 不存在通配符
+      if (plugins.indexOf(p) < 0) {
+        illegalPlugins.push(p);
+      } else {
+        (legalPlugins.indexOf(p) < 0) && legalPlugins.push(p);
+      }
     } else {
-      legalPlugins.push(p);
+      // 存在通配符
+      let outPlugins = []
+      plugins.forEach(function (plugin) {
+        let regStr = new RegExp('^' + p.replace(/(\*)/g, '.*') + '$' )
+        if (plugin.match(regStr)) {
+          if (outPlugins.indexOf(plugin) < 0 && legalPlugins.indexOf(plugin) < 0) {
+            outPlugins.push(plugin)
+          }
+        }
+      })
+      legalPlugins = legalPlugins.concat(outPlugins)
     }
   });
   if (legalPlugins.length < 1) {
@@ -193,11 +208,11 @@ const pluginsCommandAdd = function (opts) {
               .replace(/^([A-Z])/, function ($1) { return $1.toLowerCase() })
               .replace(/([A-Z])/g, function ($1) { return '-' + $1.toLowerCase() })
             if (txt === '') {
-              txt = `import ${successInstalled[i]} from '.${sep}${successInstalled[i]}.vue'\n` + txt
+              txt = `import ${successInstalled[i]} from './${successInstalled[i]}.vue'\n` + txt
               txt += `Vue.component('${comName}', ${successInstalled[i]})\n`
             } else {
               if (txt.indexOf(successInstalled[i]) < 0) {
-                txt = `import ${successInstalled[i]} from '.${sep}${successInstalled[i]}.vue'\n` + txt
+                txt = `import ${successInstalled[i]} from './${successInstalled[i]}.vue'\n` + txt
                 txt += `Vue.component('${comName}', ${successInstalled[i]})\n`
               }
             }
