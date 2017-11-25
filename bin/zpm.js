@@ -16,6 +16,7 @@ const download = require('download');
 let prompt = inquirer.createPromptModule();
 
 const pluginSuffix = '.vue';
+const sep = path.sep;
 
 colors.setTheme({
   help: 'cyan',
@@ -55,7 +56,7 @@ const showAllCommands = function () {
   console.log(' - init        添加模板'.data);
   console.log('               zpm init [, project_template] [, project_name] [, project_path]'.data);
   console.log(' - list, ls    显示所有命令'.data);
-  console.log('               zpm list'.data);
+  console.log('               zpm list 或者 zpm ls'.data);
   console.log(' - sync        同步所有插件'.data);
   console.log('               zpm sync\n'.data);
 };
@@ -66,9 +67,17 @@ const showAllPluginsCommands = function () {
   console.log(' - list, ls    显示所有插件'.data);
   console.log('               zpm plugins list\n'.data);
 };
+const showSyncHelp = function () {
+  console.log('\n zpm sync      同步所有已经安装的组件'.data);
+  console.log(' - list, ls    显示sync命令的用法'.data);
+  console.log('               zpm sync list 或者 zpm sync ls'.data);
+  console.log(' - all         同步所有服务端的组件'.data);
+  console.log('               zpm sync all'.data);
+  console.log(' - 组件名      同步指定组件，多个组件以空格分隔'.data);
+  console.log('               zpm sync 组件1 [, 组件2] ...\n'.data);
+};
 
 const getAllPlugins = function () {
-  const sep = path.sep;
   let templatesPath = path.resolve(__dirname, `.${sep}plugins`);
   let allPlugins = [];
   let allPluginsConfig = [];
@@ -82,7 +91,7 @@ const getAllPlugins = function () {
       if (_stat.isDirectory()) {
         let _realFiles = fs.readdirSync(_realFilePath);
         if (_realFiles.indexOf(`index${pluginSuffix}`) > -1) {
-          // 存在index.js，则认为是有效的插件
+          // 存在index.vue，则认为是有效的插件
           allPlugins.push(fname);
           pluginChoice.push({
             name: fname,
@@ -123,7 +132,6 @@ const pluginsCommandList = function (opts) {
 };
 
 const pluginsCommandAdd = function (opts) {
-  const sep = path.sep;
   let questions = [];
   let pluginInfo = {
     plugins: []
@@ -236,7 +244,6 @@ const pluginsCommandAdd = function (opts) {
  * @param callback
  */
 const syncPlugins = function (callback) {
-  const sep = path.sep
   download('https://codeload.github.com/lsliangshan/zpm_plugins/zip/master', `${path.resolve(__dirname, '..' + sep)}`, {
     extract: true
   }).then(() => {
@@ -253,7 +260,7 @@ const syncPlugins = function (callback) {
           if (stats) {
             if (stats.length > 0) {
               console.log('\n 同步的插件有'.grey);
-              console.log(` ${stats.join('\n')}`.info);
+              console.log(` ${stats.join('\n ')}`.info);
               console.log(' ');
               callback && callback();
             } else {
@@ -270,6 +277,50 @@ const syncPlugins = function (callback) {
   })
 };
 
+const syncOnePlugin = function (plugin) {
+  // return new Promise((resolve1, reject1) => {
+    let pluginsRoot = path.resolve(__dirname, '.' + sep + 'plugins')
+    !fs.existsSync(pluginsRoot) && fs.mkdirSync(pluginsRoot)
+    let pluginPath = path.resolve(__dirname, '.' + sep + 'plugins' + sep + plugin)
+    !fs.existsSync(pluginPath) && fs.mkdirSync(pluginPath)
+
+    let downVuePromise = new Promise((resolve, reject) => {
+      download(`https://raw.githubusercontent.com/lsliangshan/zpm_plugins/master/plugins/${plugin}/index.vue`, pluginPath, {}).then(() => {
+        resolve(plugin)
+      }).catch((err) => {
+        let vuePath = path.resolve(__dirname, '.' + sep + 'plugins' + sep + plugin + sep + 'index.vue')
+        fs.existsSync(vuePath) && fs.unlinkSync(vuePath)
+        let pkgPath = path.resolve(__dirname, '.' + sep + 'plugins' + sep + plugin + sep + 'package.json')
+        fs.existsSync(pkgPath) && fs.unlinkSync(pkgPath)
+        fs.existsSync(pluginPath) && fs.rmdirSync(pluginPath)
+        reject(err)
+      })
+    })
+    let downPkgPromise = new Promise((resolve, reject) => {
+      download(`https://raw.githubusercontent.com/lsliangshan/zpm_plugins/master/plugins/${plugin}/package.json`, pluginPath, {}).then(() => {
+        resolve(plugin)
+      }).catch((err) => {
+        // reject(err)
+        resolve(err)
+      })
+    })
+    Promise.all([downPkgPromise, downVuePromise]).then(function (res) {
+      console.log(' SUCCESS '.successTag, `${plugin}同步成功\n`);
+      // resolve1(res[0])
+    }).catch((err) => {
+      switch (err.statusCode) {
+        case 404:
+          console.log(' ERROR '.errorTag, `${plugin}不存在\n`);
+          break;
+        default:
+          console.log(' ERROR '.errorTag, `${plugin}同步失败: ${err.statusMessage}\n`);
+          break;
+      }
+      // reject1(err)
+    })
+  // })
+}
+
 program
   .version(`${pkg.version}`);
 
@@ -277,7 +328,6 @@ program
   .command('init')
   .description('初始化项目: zpm init [, project_template] [, project_name] [, project_path]')
   .action(function () {
-    let sep = path.sep;
     let defaultPath = `.${sep}`;
     let questions = [];
     let projectInfo = {
@@ -446,7 +496,37 @@ program
 program
   .command('sync')
   .action(function () {
-    syncPlugins();
+    let args = process.argv;
+    // 待安装的插件
+    let newPlugins = args.slice(3);
+    if (newPlugins.length === 0) {
+      // 同步所有已经安装的插件
+      console.log(' ')
+      newPlugins = getAllPlugins()[0];
+      newPlugins.forEach(function (plugin) {
+        syncOnePlugin(plugin)
+      })
+    } else if (newPlugins.length === 1) {
+      switch (newPlugins[0]) {
+        case 'all':
+          // 同步所有服务端的插件
+          syncPlugins();
+          break;
+        case 'list':
+        case 'ls':
+          // 显示命令帮助
+          showSyncHelp();
+          break;
+        default:
+          break;
+      }
+    } else {
+      // 同步指定插件
+      console.log(' ')
+      newPlugins.forEach(function (plugin) {
+        syncOnePlugin(plugin)
+      })
+    }
   });
 
 program
