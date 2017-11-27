@@ -6,6 +6,11 @@ import {
   nodeEnv
 } from 'configs/api'
 
+global.Vue = Vue
+try {
+  require('./plugins/index')
+} catch (err) {}
+
 // 全局异常捕捉
 Vue.config.errorHandler = function (err, vm, info) {
   try {

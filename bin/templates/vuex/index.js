@@ -39,6 +39,11 @@ import store from './store'
 import * as filters from './filters'
 import mixins from './mixins'
 
+global.Vue = Vue
+try {
+  require('./plugins/index')
+} catch (err) {}
+
 // register global utility filters.
 Object.keys(filters).forEach(key => {
   Vue.filter(key, filters[key])

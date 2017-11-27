@@ -226,10 +226,10 @@ const pluginsCommandAdd = function (opts) {
               }
             }
           }
-          if (txt.indexOf('from \'vue\'') < 0 && txt.indexOf('from "vue"') < 0) {
-            // 没有vue，导入vue
-            txt = 'import Vue from \'vue\'\n' + txt
-          }
+          // if (txt.indexOf('from \'vue\'') < 0 && txt.indexOf('from "vue"') < 0) {
+          //   // 没有vue，导入vue
+          //   txt = 'import Vue from \'vue\'\n' + txt
+          // }
           (txt !== bytesRead) && fs.writeFileSync(indexPath, txt)
         })
       }
@@ -249,30 +249,26 @@ const syncPlugins = function (callback) {
     extract: true
   }).then(() => {
     let pluginPath = path.resolve(__dirname, `.${sep}plugins`);
-    fs.exists(pluginPath, function (exists) {
-      if (!exists) {
-        shelljs.exec(`mkdir ${pluginPath}`);
-      }
-      try {
-        shelljs.cp('-R', path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins${sep}*`), pluginPath);
-        setTimeout(() => {
-          console.log('\n DONE '.successTag, '组件同步成功'.success);
-          let stats = fs.readdirSync(path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins`));
-          if (stats) {
-            if (stats.length > 0) {
-              console.log('\n 同步的组件有'.grey);
-              console.log(` ${stats.join('\n ')}`.info);
-              console.log(' ');
-              callback && callback();
-            } else {
-              console.log('\n WARN '.warnTag, '未找到任何组件'.warn);
-            }
+    !fs.existsSync(pluginPath) && fs.mkdirSync(pluginPath)
+    try {
+      shelljs.cp('-R', path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins${sep}*`), pluginPath);
+      setTimeout(() => {
+        console.log('\n DONE '.successTag, '组件同步成功'.success);
+        let stats = fs.readdirSync(path.resolve(__dirname, `..${sep}zpm_plugins-master${sep}plugins`));
+        if (stats) {
+          if (stats.length > 0) {
+            console.log('\n 同步的组件有'.grey);
+            console.log(` ${stats.join('\n ')}`.info);
+            console.log(' ');
+            callback && callback();
+          } else {
+            console.log('\n WARN '.warnTag, '未找到任何组件'.warn);
           }
-        }, 200)
-      } catch (err) {
-        console.log('\n FAIL '.errorTag, `组件同步失败${err}`.error);
-      }
-    });
+        }
+      }, 200)
+    } catch (err) {
+      console.log('\n FAIL '.errorTag, `组件同步失败${err}`.error);
+    }
   }).catch((err) => {
     console.log('\n FAIL '.errorTag, '同步组件失败，请重试'.error);
   })
