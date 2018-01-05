@@ -132,6 +132,73 @@ const pluginsCommandList = function (opts) {
   }
 };
 
+/**
+ * 获取html版 版权注释
+ * @param pkg
+ * @returns {string}
+ * @private
+ */
+const _getHtmlCopyRight = function (pkg) {
+  let _replacement = '<!--\n' +
+    `\tPowered by ${pkg.name}, Ver ${pkg.version}\n` +
+    `\tDescription: ${pkg.description}\n` +
+    `\tCreated by ${pkg.author.name}`
+  if (pkg.date) {
+    _replacement += `, on ${pkg.date}\n`
+  } else {
+    _replacement += '\n'
+  }
+  _replacement += `\tEmail to: ${pkg.author.email}\n`
+  if (pkg.slogan) {
+    _replacement += `\tSlogan: ${pkg.slogan || ''}\n` + '-->'
+  } else {
+    _replacement += '-->'
+  }
+  return _replacement
+}
+/**
+ * 获取JS版 版权注释
+ * @param pkg
+ * @returns {string}
+ * @private
+ */
+const _getJsCopyRight = function (pkg) {
+  let _replacement = '  /**\n' +
+    `   * Powered by ${pkg.name}, Ver ${pkg.version}\n` +
+    `   * Description: ${pkg.description}\n` +
+    `   * Created by ${pkg.author.name}`
+  if (pkg.date) {
+    _replacement += `, on ${pkg.date}\n`
+  } else {
+    _replacement += '\n'
+  }
+  _replacement += `   * Email to: ${pkg.author.email}\n`
+  if (pkg.slogan) {
+    _replacement += `   * Slogan: ${pkg.slogan || ''}\n` + '   */'
+  } else {
+    _replacement += '   */'
+  }
+  return _replacement
+}
+
+const getCopyRightText = function (pkg, type) {
+  let _replacement = ''
+  switch (type) {
+    case 'html':
+      _replacement = _getHtmlCopyRight(pkg)
+      break
+    case 'js':
+      _replacement = _getJsCopyRight(pkg)
+      break
+    case 'css':
+      break
+    default:
+      _replacement = _getHtmlCopyRight(pkg)
+      break
+  }
+  return _replacement
+}
+
 const pluginsCommandAdd = function (opts) {
   let questions = [];
   let pluginInfo = {
@@ -199,6 +266,11 @@ const pluginsCommandAdd = function (opts) {
       legalPlugins.forEach(function (plugin) {
         try {
           shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}/plugins${sep}${plugin}${sep}index${pluginSuffix}`, `${realPath}${sep}${plugin}.vue`);
+          let pkg = require(`${path.join(__dirname, '.' + sep)}/plugins${sep}${plugin}${sep}package.json`)
+          let _htmlReplacement = getCopyRightText(pkg, 'html')
+          let _jsReplacement = getCopyRightText(pkg, 'js')
+          replaceFileContent(/<template>/, _htmlReplacement + '\n<template>', `${realPath}${sep}${plugin}.vue`)
+          replaceFileContent(/<script>/, '<script>\n' + _jsReplacement, `${realPath}${sep}${plugin}.vue`)
           successInstalled.push(plugin);
         } catch (err) {
           failInstalled.push(plugin);
