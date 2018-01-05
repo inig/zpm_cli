@@ -314,6 +314,26 @@ const syncOnePlugin = function (plugin) {
   })
 };
 
+/**
+ * 文件内容替换
+ * @param substr, [必需] 规定子字符串或要替换的模式的 RegExp 对象。请注意，如果该值是一个字符串，则会被转换为 RegExp 对象。
+ * @param replacement, [必需] 一个字符串值。规定了替换文本或生成替换文本的函数。
+ * @param filename, [必需] 待替换文件的真实全路径（path + filename + file_suffix）
+ * @param replaceAttributes, [可选] 当 substr 为字符串类型时有效，包含属性 "g"、"i" 和 "m"，分别用于指定全局匹配、区分大小写的匹配和多行匹配。
+ */
+const replaceFileContent = function (substr, replacement, filename, replaceAttributes) {
+  let fsContent = fs.readFileSync(filename, {encoding: 'utf-8'})
+  let txt = fsContent || ''
+  let _replaceReg = substr
+  if (Object.prototype.toString.call(_replaceReg) !== '[object RegExp]') {
+    _replaceReg = new RegExp(_replaceReg, replaceAttributes ? replaceAttributes : '')
+  }
+  txt = txt.replace(_replaceReg, replacement)
+  if (txt !== fsContent) {
+    fs.writeFileSync(filename, txt)
+  }
+};
+
 module.exports = {
   validateName: validateName,
   isEmptyObj: isEmptyObj,
@@ -326,5 +346,6 @@ module.exports = {
   pluginsCommandList: pluginsCommandList,
   pluginsCommandAdd: pluginsCommandAdd,
   syncPlugins: syncPlugins,
-  syncOnePlugin: syncOnePlugin
+  syncOnePlugin: syncOnePlugin,
+  replaceFileContent: replaceFileContent
 };

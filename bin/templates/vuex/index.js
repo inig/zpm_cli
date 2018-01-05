@@ -52,6 +52,9 @@ Object.keys(filters).forEach(key => {
 // register global mixins.
 Vue.mixin(mixins)
 
-global.eventHub = new Vue()
+if (!global.{{APP_NAME}}) {
+  global.{{APP_NAME}} = {}
+}
+global.{{APP_NAME}}.eventHub = new Vue()
 
 new Vue(Vue.util.extend({ el: '#root', store }, App))

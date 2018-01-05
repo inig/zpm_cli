@@ -17,9 +17,6 @@ export default {
     }
   },
   computed: {
-    store: function () {
-      return global.store
-    }
   },
   methods: {
   },
@@ -28,7 +25,6 @@ export default {
   created () {
   },
   mounted () {
-    console.log('......................', this.store);
   }
 }
 </script>

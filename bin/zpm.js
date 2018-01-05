@@ -157,12 +157,24 @@ program
       }
       let realPath = path.resolve(process.cwd(), projectInfo.path);
       realPath += sep + projectInfo.name;
+      let globalVarName = ''
+      if (projectInfo.template === 'vuex') {
+        globalVarName = projectInfo.name.replace(/(\..)*/g, function (item) {
+          return item.charAt(1).toUpperCase()
+        })
+      }
       fs.exists(realPath, function (exists) {
         if (!exists) {
           shelljs.exec(`mkdir ${realPath}`);
         }
         try {
           shelljs.cp('-R', `${path.join(__dirname, '.' + sep)}/templates${sep}${projectInfo.template}${sep}*`, `${realPath}`)
+          if (globalVarName !== '') {
+            let indexPath = path.resolve(realPath, 'index.js')
+            let storeIndexPath = path.resolve(realPath, 'store/index.js')
+            lib.replaceFileContent(/{{APP_NAME}}/g, globalVarName, indexPath)
+            lib.replaceFileContent(/{{APP_NAME}}/g, globalVarName, storeIndexPath)
+          }
           console.log('\n DONE '.successTag, '模板'.success, `${projectInfo.template}`.success.bold.italic, '添加成功\n'.success);
         } catch (err) {
           console.log('\n FAIL '.errorTag, `模板 ${projectInfo.template} 添加失败\n`.error);
