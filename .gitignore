@@ -60,3 +60,5 @@ typings/
 .idea
 
 zpm_plugins-master
+
+bin/plugins
