@@ -272,6 +272,18 @@ program
   });
 
 program
+    .command('ls')
+    .action(function () {
+      lib.zpmListAction();
+    });
+
+program
+    .command('list')
+    .action(function () {
+        lib.zpmListAction();
+    });
+
+program
   .command('help')
   .action(function () {
     lib.showAllCommands();
