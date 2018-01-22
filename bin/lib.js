@@ -3,26 +3,33 @@
  */
 const path = require('path');
 const fs = require('fs');
+const https = require('https');
 const shelljs = require('shelljs');
 const inquirer = require('inquirer');
 const colors = require('colors');
 const download = require('download');
 const axios = require('axios');
 const qs = require('querystring');
+const pkg = require('../package.json');
+
 let prompt = inquirer.createPromptModule();
 
 const sep = path.sep;
 const pluginSuffix = '.vue';
 const requestUrl = 'http://talkapi.dei2.com/';
 // const requestUrl = 'http://127.0.0.1:3000/';
-
+https.globalAgent.options.rejectUnauthorized = false;
 const request = axios.create({
-    baseURL: requestUrl,
-    timeout: 3000,
-    headers: {
-      'X-request-from': 'zpm_cli'
-    }
+  baseURL: requestUrl,
+  timeout: 3000,
+  httpsAgent: new https.Agent({rejectUnauthorized: false}),
+  headers: {
+    'X-request-from': 'zpm_cli'
+  }
 });
+
+let BASE_PLUGIN_URL = 'https://static.dei2.com/plugins/';
+let BASE_PLUGIN_ZIP_URL = 'https://static.dei2.com/plugins_zips/';
 
 const validateName = function (input) {
   let done = this.async();
@@ -41,7 +48,30 @@ const isEmptyObj = function (obj) {
 };
 
 const copyText = function () {
-    console.log('\n\t\tZPM powered by 智愚'.success);
+  console.log(['                                                                                                           ',
+    '                    o                                                             8                        ',
+    '                   !888   8                                        88; 88888888888888                      ',
+    '                    88888888              8888                      888         $8888                      ',
+    '                   8888$        88$8888888888888                     88   88 88 8888                       ',
+    '                       888      ;88       8888                       88888888  8888                        ',
+    '                        88*8888  888     &888                         88  $8$  888                         ',
+    '                     8888&       $88$88888888$                        ;8$88888888!                         ',
+    '                88888 88;8888     888                               88888; 88  8     ;$                    ',
+    '           88888o    88$  $888    88&                                      8!8888888*8888                  ',
+    '           8&       88o     88                                    88888888$8   888   8888                  ',
+    '                   88          $88888                         888*88$     8&;888$88  888                   ',
+    '                 88       &88 8$  8888                             88  888888     8  888                   ',
+    '               ;8          88     $88                              88  88     !88888888                    ',
+    '                           888888$$88                               88          888888                     ',
+    '                           88     $88                                      8888  8888  8888                ',
+    '                           88     $88                           88         8888          8888              ',
+    '                           8888888888                         &888    8      888           88              ',
+    '                           88     888                         888*     88           88                     ',
+    '                                 8888                         888        888888888888888&                  ',
+    '                                 888                           88           8888888888888                  ',
+    '                                                                                                           '].join('\n'));
+  console.log(`\t\t\t\t\t${pkg.name} powered by ${pkg.author.name}`.success);
+  console.log(` \t\t\t\t更多内容: ${pkg.author.website}`.data);
 }
 
 /**
@@ -50,56 +80,59 @@ const copyText = function () {
 const showAllCommands = function () {
   copyText();
   console.log('\n 所有命令如下'.data);
-  console.log(' - init        添加模板'.data);
-  console.log('               zpm init [, project_template] [, project_name] [, project_path]'.data);
-  console.log(' - plugins     添加组件命令'.data);
-  console.log('               zpm plugins add 组件1 [, 组件2]，添加组件，多个组件用空格区分，组件名支持 * （通配符，匹配一个或多个字符）'.data);
-  console.log('               输入zpm plugins help，查看更详细的命令操作'.data);
-  console.log(' - sync        同步所有组件'.data);
-  console.log('               zpm sync'.data);
-  console.log(' - help, ?     显示所有命令'.data);
-  console.log('               zpm help 或者 zpm ?\n'.data);
+  console.log(' - init\t\t添加模板'.data);
+  console.log(' \t\tzpm init [, project_template] [, project_name] [, project_path]'.data);
+  console.log(' - plugins\t添加组件命令'.data);
+  console.log(' \t\tzpm plugins add 组件1 [, 组件2]，添加组件，多个组件用空格区分，组件名支持 * （通配符，匹配一个或多个字符）'.data);
+  console.log(' \t\t输入zpm plugins help，查看更详细的命令操作'.data);
+  console.log(' - sync\t\t同步所有组件'.data);
+  console.log(' \t\tzpm sync'.data);
+  console.log(' - help, ?\t显示所有命令'.data);
+  console.log(' \t\tzpm help 或者 zpm ?\n'.data);
 };
 const showAllPluginsCommands = function () {
   copyText();
-  console.log('\n zpm plugins   命令所有操作名如下'.data);
-  console.log(' - add         添加组件，多个组件以空格区分，支持 * （通配符，匹配一个或多个字符）'.data);
-  console.log('               zpm plugins add [, 组件1] [, 组件1] ...'.data);
-  console.log(' - list, ls    显示所有组件'.data);
-  console.log('               zpm plugins list 或者 zpm plugins ls'.data);
-  console.log(' - help, ?     显示plugins命令的操作名'.data);
-  console.log('               zpm plugins help 或者 zpm plugins ?\n'.data);
+  console.log('\n zpm plugins\t命令所有操作名如下'.data);
+  console.log(' - add\t\t添加组件，多个组件以空格区分，支持 * （通配符，匹配一个或多个字符）'.data);
+  console.log(' \t\tzpm plugins add [, 组件1] [, 组件1] ...'.data);
+  console.log(' - list, ls\t显示所有组件'.data);
+  console.log(' \t\tzpm plugins list 或者 zpm plugins ls'.data);
+  console.log(' - help, ?\t显示plugins命令的操作名'.data);
+  console.log(' \t\tzpm plugins help 或者 zpm plugins ?\n'.data);
 };
 const showSyncHelp = function () {
   copyText();
-  console.log('\n zpm sync      同步所有已经安装的组件'.data);
-  console.log(' - all         同步所有服务端的组件'.data);
-  console.log('               zpm sync all'.data);
-  console.log(' - 组件名      同步指定组件，多个组件以空格分隔'.data);
-  console.log('               zpm sync 组件1 [, 组件2] ...'.data);
-  console.log(' - help, ?     显示sync命令的用法'.data);
-  console.log('               zpm sync help 或者 zpm sync ?\n'.data);
+  console.log('\n zpm sync\t同步所有已经安装的组件'.data);
+  console.log(' - all\t\t同步所有服务端的组件'.data);
+  console.log(' \t\tzpm sync all'.data);
+  console.log(' - 组件名\t同步指定组件，多个组件以空格分隔'.data);
+  console.log(' \t\tzpm sync 组件1 [, 组件2] ...'.data);
+  console.log(' - @作者名\t同步指定作者的组件，多个作者以空格分隔，作者名前需要添加@符号'.data);
+  console.log(' \t\tzpm sync @作者1 [, @作者2] ...'.data);
+  console.log(' \t\t作者名和组件名可以混合使用，作者名前带@符号，组件名前不带@符号: zpm sync @作者1 组件1 @作者2 组件2 ...'.warn);
+  console.log(' - help, ?\t显示sync命令的用法'.data);
+  console.log(' \t\tzpm sync help 或者 zpm sync ?\n'.data);
 };
 
 const showInitHelp = function () {
   copyText();
-  console.log('\n zpm init      添加模板'.data);
-  console.log('               zpm init [, 模板名] [, 项目名] [, 项目路径]'.data);
-  console.log(' - help, ?     显示init命令的用法'.data);
-  console.log('               zpm init help 或者 zpm init ?\n'.data);
+  console.log('\n zpm init\t添加模板'.data);
+  console.log(' \t\tzpm init [, 模板名] [, 项目名] [, 项目路径]'.data);
+  console.log(' - help, ?\t显示init命令的用法'.data);
+  console.log(' \t\tzpm init help 或者 zpm init ?\n'.data);
 };
 
 const showZpmListActionHelp = function () {
-    copyText();
-    console.log('\n zpm ls, list\t\t查询命令'.data);
-    console.log(' - author, authors\t显示所有组件作者'.data);
-    console.log('\t\t\tzpm ls [或list] author 或者 zpm ls [或list] authors\n'.data);
-    console.log(' - plugin, plugins\t显示所有可用的组件'.data);
-    console.log('\t\t\tzpm ls [或list] plugin 或者 zpm ls [或list] plugins\n'.data);
-    console.log(' - template, templates\t显示所有可用的模板'.data);
-    console.log('\t\t\tzpm ls [或list] template 或者 zpm ls [或list] template\n'.data);
-    console.log(' - help, ?\t\t显示init命令的用法'.data);
-    console.log('\t\t\tzpm ls [或list] help 或者 zpm ls [或list] ?\n'.data);
+  copyText();
+  console.log('\n zpm ls, list\t\t查询命令'.data);
+  console.log(' - author, authors\t显示所有组件作者'.data);
+  console.log('\t\t\tzpm ls [或list] author 或者 zpm ls [或list] authors\n'.data);
+  console.log(' - plugin, plugins\t显示所有可用的组件'.data);
+  console.log('\t\t\tzpm ls [或list] plugin 或者 zpm ls [或list] plugins\n'.data);
+  console.log(' - template, templates\t显示所有可用的模板'.data);
+  console.log('\t\t\tzpm ls [或list] template 或者 zpm ls [或list] template\n'.data);
+  console.log(' - help, ?\t\t显示init命令的用法'.data);
+  console.log('\t\t\tzpm ls [或list] help 或者 zpm ls [或list] ?\n'.data);
 };
 
 /**
@@ -108,8 +141,11 @@ const showZpmListActionHelp = function () {
 const showNoPluginsTip = function () {
   copyText();
   console.log('\n WARN '.warnTag, '本地未安装任何组件'.warn);
+  console.log('\n       您还可以: '.data);
   console.log('\n       输入 "zpm sync all" 同步所有可用的组件'.data);
-  console.log('\n       或者输入 "zpm sync 组件1 [, 组件2]" 同步指定的组件，多个组件用空格区分\n'.data);
+  console.log('\n       输入 "zpm sync 组件1 [, 组件2]" 同步指定的组件，多个组件用空格区分'.data);
+  console.log('\n       输入 "zpm sync @作者1 [, @作者2]" 同步指定作者的组件，多个作者用空格区分，作者名前带@符号'.data);
+  console.log('\n       输入 "zpm sync @作者1 组件1 [, @作者2, 组件2]" 同步指定作者的组件，多个作者用空格区分，作者名前带@符号，组件名前不带@符号\n'.data);
 };
 
 const getAllPlugins = function () {
@@ -383,6 +419,119 @@ const syncPlugins = function (callback) {
   })
 };
 
+const syncAllPluginsFromDei2 = async function syncAllPlugins (args) {
+  let _searchConditions = {};
+  if (args && args.users && args.users.length > 0) {
+    _searchConditions.username = args.users.join(';');
+  }
+  let pluginsData = await request.post('/Zpm/cli/listPlugins', qs.stringify(_searchConditions));
+  if (Number(pluginsData.data.status) === 200) {
+    let _allPlugins = pluginsData.data.data.plugins;
+    let i = 0;
+    let failedPlugins = [];
+    let successfulPlugins = [];
+    for (i; i < _allPlugins.length; i++) {
+      let downloadedPluginData = await syncOnePluginFromDei2(_allPlugins[i].name)
+      if (downloadedPluginData === '') {
+        failedPlugins.push(_allPlugins[i].name);
+      } else {
+        successfulPlugins.push(downloadedPluginData);
+      }
+    }
+    if (failedPlugins.length > 0) {
+      console.log(`\n 组件 ${failedPlugins.join(' 、 ')} 同步失败\n`.warn);
+    }
+    if (successfulPlugins.length > 0) {
+      console.log(`\n 组件 ${successfulPlugins.join(' 、 ')} 同步成功\n`.success);
+    }
+  }
+};
+
+const syncPluginsFromDei2 = async function syncPluginsFromDei2 (args) {
+  let _allPlugins = args.plugins.split(';');
+  let i = 0;
+  let failedPlugins = [];
+  let successfulPlugins = [];
+  for (i; i < _allPlugins.length; i++) {
+    let downloadedPluginData = await syncOnePluginFromDei2(_allPlugins[i]);
+    if (downloadedPluginData === '') {
+      failedPlugins.push(_allPlugins[i]);
+    } else {
+      successfulPlugins.push(downloadedPluginData);
+    }
+  }
+  if (failedPlugins.length > 0) {
+    console.log(`\n 组件 ${failedPlugins.join(' 、 ')} 同步失败\n`.warn);
+  }
+  if (successfulPlugins.length > 0) {
+    console.log(`\n 组件 ${successfulPlugins.join(' 、 ')} 同步成功\n`.success);
+  }
+};
+
+const syncOnePluginFromDei2 = function syncOnePluginFromDei2 (pluginName) {
+  let pluginsPath = path.resolve(__dirname, '.' + sep + 'plugins');
+  if (!fs.existsSync(pluginsPath)) {
+    fs.mkdirSync(pluginsPath);
+  }
+  return new Promise((resolve, reject) => {
+    download(`${BASE_PLUGIN_ZIP_URL}/${pluginName}.zip`, pluginsPath, {
+      extract: true
+    }).then((res) => {
+        resolve(pluginName);
+      }).catch(err => {
+        resolve('');
+    });
+  });
+};
+
+const getPluginsByUser = async function getPluginsByUser (args) {
+  if (!args || !args.username || args.username.trim() === '') {
+    return [];
+  }
+  let pluginsData = await request.post('/Zpm/cli/getPluginsByUser', qs.stringify({
+    username: args.username
+  }));
+  if (Number(pluginsData.data.status) === 200) {
+    return pluginsData.data.data.plugins;
+  } else {
+    return [];
+  }
+};
+
+const syncPluginsByUsersOrPluginNamesFromDei2 = async function syncPluginsByUsersOrPluginNamesFromDei2 (args) {
+  let plugins = [];
+  let i = 0;
+  let _users = [];
+  for (i; i < args.params.length; i++) {
+    if (args.params[i].match(/^@+/)) {
+      _users.push(args.params[i].replace(/^@+/, ''));
+    } else {
+      plugins.push(args.params[i]);
+    }
+  }
+  let _pluginsFromUsers = await getPluginsByUser({
+    username: _users.join(';')
+  });
+  plugins = plugins.concat(_pluginsFromUsers);
+  let j = 0;
+  let failedPlugins = [];
+  let successfulPlugins = [];
+  for (j; j < plugins.length; j++) {
+    let downloadedPluginData = await syncOnePluginFromDei2(plugins[j])
+    if (downloadedPluginData === '') {
+      failedPlugins.push(plugins[j]);
+    } else {
+      successfulPlugins.push(downloadedPluginData);
+    }
+  }
+  if (failedPlugins.length > 0) {
+    console.log(`\n 组件 ${failedPlugins.join(' 、 ')} 同步失败\n`.warn);
+  }
+  if (successfulPlugins.length > 0) {
+    console.log(`\n 组件 ${successfulPlugins.join(' 、 ')} 同步成功\n`.success);
+  }
+};
+
 const syncOnePlugin = function (plugin) {
   let pluginsRoot = path.resolve(__dirname, '.' + sep + 'plugins')
   !fs.existsSync(pluginsRoot) && fs.mkdirSync(pluginsRoot)
@@ -459,8 +608,8 @@ const _listAuthors = async function _listAuthors () {
     if (users.length < 1) {
       console.log('\n   无注册的开发者，您可以访问 http://plugins.admin.dei2.com 注册开发者并提交组件。'.data);
     } else {
-      console.log(`\n   共${users.length}位已注册的开发者:`.data);
-      console.log(`\t${users.join(' 、 ')}`.warn);
+      console.log(`\n 共${users.length}位已注册的开发者:`.data);
+      console.log(`   ${users.join(' 、 ')}`.warn);
     }
     return users;
 };
@@ -505,9 +654,9 @@ const _listPlugins = async function _listPlugins (args) {
 
 const _listTemplates = function () {
     copyText();
-    console.log('\n   可用的模板：default 、 vuex'.warn);
-    console.log('     default模板：普通模板，只包含基本的vue环境，不支持vuex'.data);
-    console.log('     vuex模板：vuex模板，支持vuex'.data);
+    console.log('\n可用的模板：default 、 vuex'.warn);
+    console.log('\tdefault模板：普通模板，只包含基本的vue环境，默认不支持vuex。zpm init default 项目名'.data);
+    console.log('\tvuex模板：vuex模板，支持vuex。zpm init vuex 项目名'.data);
 };
 
 const zpmListAction = async function () {
@@ -539,6 +688,39 @@ const zpmListAction = async function () {
     }
 };
 
+const zpmSyncAction = async function zpmSyncAction () {
+  let args = process.argv;
+  let params = args.slice(3);
+  if (params.length === 0) {
+    // 同步已经安装的插件
+    let newPlugins = this.getAllPlugins()[0];
+    if (newPlugins.length === 0) {
+      showNoPluginsTip();
+    } else {
+      await syncPluginsFromDei2({
+        plugins: newPlugins.join(';')
+      });
+    }
+  } else {
+    let syncType = params[0];
+    switch (syncType) {
+      case 'all':
+        await syncAllPluginsFromDei2();
+        break;
+      case 'help':
+      case '?':
+      case '？':
+        this.showSyncHelp();
+        break;
+      default:
+        await syncPluginsByUsersOrPluginNamesFromDei2({
+          params: args.slice(3)
+        });
+        break;
+    }
+  }
+};
+
 module.exports = {
   validateName: validateName,
   isEmptyObj: isEmptyObj,
@@ -553,5 +735,6 @@ module.exports = {
   syncPlugins: syncPlugins,
   syncOnePlugin: syncOnePlugin,
   replaceFileContent: replaceFileContent,
-    zpmListAction: zpmListAction
+    zpmListAction: zpmListAction,
+  zpmSyncAction: zpmSyncAction
 };

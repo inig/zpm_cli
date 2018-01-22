@@ -227,48 +227,49 @@ program
 program
   .command('sync')
   .action(function () {
-    let args = process.argv;
-    // 待安装的组件
-    let newPlugins = args.slice(3);
-    if (newPlugins.length === 0) {
-      // 同步所有已经安装的组件
-      console.log(' ')
-      newPlugins = lib.getAllPlugins()[0];
-      if (newPlugins.length === 0) {
-        // 还未安装过组件
-        lib.showNoPluginsTip();
-      } else {
-        newPlugins.forEach(function (plugin) {
-          lib.syncOnePlugin(plugin)
-        });
-      }
-    } else if (newPlugins.length === 1) {
-      switch (newPlugins[0]) {
-        case 'all':
-          // 同步所有服务端的组件
-          lib.syncPlugins();
-          break;
-        case 'help':
-        case '?':
-        case '？':
-          // 显示命令帮助
-          lib.showSyncHelp();
-          break;
-        default:
-          // 同步指定组件
-          console.log(' ')
-          newPlugins.forEach(function (plugin) {
-            lib.syncOnePlugin(plugin)
-          });
-          break;
-      }
-    } else {
-      // 同步指定组件
-      console.log(' ')
-      newPlugins.forEach(function (plugin) {
-        lib.syncOnePlugin(plugin)
-      });
-    }
+    lib.zpmSyncAction();
+    // let args = process.argv;
+    // // 待安装的组件
+    // let newPlugins = args.slice(3);
+    // if (newPlugins.length === 0) {
+    //   // 同步所有已经安装的组件
+    //   console.log(' ')
+    //   newPlugins = lib.getAllPlugins()[0];
+    //   if (newPlugins.length === 0) {
+    //     // 还未安装过组件
+    //     lib.showNoPluginsTip();
+    //   } else {
+    //     newPlugins.forEach(function (plugin) {
+    //       lib.syncOnePlugin(plugin)
+    //     });
+    //   }
+    // } else if (newPlugins.length === 1) {
+    //   switch (newPlugins[0]) {
+    //     case 'all':
+    //       // 同步所有服务端的组件
+    //       lib.syncPlugins();
+    //       break;
+    //     case 'help':
+    //     case '?':
+    //     case '？':
+    //       // 显示命令帮助
+    //       lib.showSyncHelp();
+    //       break;
+    //     default:
+    //       // 同步指定组件
+    //       console.log(' ')
+    //       newPlugins.forEach(function (plugin) {
+    //         lib.syncOnePlugin(plugin)
+    //       });
+    //       break;
+    //   }
+    // } else {
+    //   // 同步指定组件
+    //   console.log(' ')
+    //   newPlugins.forEach(function (plugin) {
+    //     lib.syncOnePlugin(plugin)
+    //   });
+    // }
   });
 
 program
