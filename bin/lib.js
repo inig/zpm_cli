@@ -71,7 +71,7 @@ const copyText = function () {
     '                                 888                           88           8888888888888                  ',
     '                                                                                                           '].join('\n'));
   console.log(`\t\t\t\t\t${pkg.name} powered by ${pkg.author.name}`.success);
-  console.log(` \t\t\t\t更多内容: ${pkg.author.website}`.data);
+  console.log(` \t\t\t\t更多内容: ${pkg.author.website || 'http://plugins.admin.dei2.com/'}`.data);
 }
 
 /**
