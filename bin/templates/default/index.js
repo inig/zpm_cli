@@ -1,3 +1,6 @@
+import weex from 'weex-vue-render'
+import Vue from 'vue'
+import parse from 'url-parse'
 import App from './index.vue'
 import {
   log
@@ -5,6 +8,11 @@ import {
 import {
   nodeEnv
 } from 'configs/api'
+
+if (typeof weex.init === 'function') weex.init(Vue)
+
+weex.config.zpfe = weex.config.zpfe || {}
+weex.config.zpfe.query = parse(weex.config.bundleUrl, true).query
 
 global.Vue = Vue
 try {

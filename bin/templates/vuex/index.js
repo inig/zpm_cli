@@ -33,7 +33,9 @@
 /**
  * Created by liangshan on 2017/7/19.
  */
-
+import weex from 'weex-vue-render'
+import Vue from 'vue'
+import parse from 'url-parse'
 import App from './index.vue'
 import store from './store'
 import * as filters from './filters'
@@ -43,6 +45,11 @@ global.Vue = Vue
 try {
   require('./plugins/index')
 } catch (err) {}
+
+if (typeof weex.init === 'function') weex.init(Vue)
+
+weex.config.zpfe = weex.config.zpfe || {}
+weex.config.zpfe.query = parse(weex.config.bundleUrl, true).query
 
 // register global utility filters.
 Object.keys(filters).forEach(key => {
