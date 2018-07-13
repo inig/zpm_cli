@@ -65,7 +65,7 @@ program
 
     let args = process.argv;
     if (args.length === 4 && ['help', '?', '？'].indexOf(args[3]) > -1) {
-      lib.showInitHelp();
+      lib.showInitHelp(true);
       return;
     }
     if (allTemplates.indexOf(args[3]) < 0 && args.length > 3) {
@@ -191,13 +191,13 @@ program
     let tul = lib.getAllPlugins();
     if (args.length < 4) {
       console.log('\n 请输入操作名'.error);
-      lib.showAllPluginsCommands();
+      lib.showAllPluginsCommands(true);
     } else {
       switch (args[3]) {
         case 'list':
         case 'ls':
           if (tul[0].length < 1) {
-            lib.showNoPluginsTip();
+            lib.showNoPluginsTip(true);
             return;
           }
           lib.pluginsCommandList({
@@ -214,11 +214,11 @@ program
         case 'help':
         case '?':
         case '？':
-          lib.showAllPluginsCommands();
+          lib.showAllPluginsCommands(true);
           break;
         default:
           console.log('\n FAIL '.errorTag, '命令操作名有误'.error);
-          lib.showAllPluginsCommands();
+          lib.showAllPluginsCommands(true);
           break;
       }
     }
@@ -287,17 +287,17 @@ program
 program
   .command('help')
   .action(function () {
-    lib.showAllCommands();
+    lib.showAllCommands(true);
   });
 program
   .command('?')
   .action(function () {
-    lib.showAllCommands();
+    lib.showAllCommands(true);
   });
 program
   .command('？')
   .action(function () {
-    lib.showAllCommands();
+    lib.showAllCommands(true);
   });
 
 program.parse(process.argv);
