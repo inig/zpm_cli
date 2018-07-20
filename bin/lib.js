@@ -215,7 +215,7 @@ const pluginsCommandList = function (opts) {
  * @private
  */
 const _getHtmlCopyRight = function (pkg) {
-  copyText();
+  // copyText();
   let _replacement = '<!--\n' +
     `\tPowered by ${pkg.name}, Ver ${pkg.version}\n` +
     `\tDescription: ${pkg.description}\n` +
@@ -240,7 +240,7 @@ const _getHtmlCopyRight = function (pkg) {
  * @private
  */
 const _getJsCopyRight = function (pkg) {
-  copyText();
+  // copyText();
   let _replacement = '  /**\n' +
     `   * Powered by ${pkg.name}, Ver ${pkg.version}\n` +
     `   * Description: ${pkg.description}\n` +
@@ -354,6 +354,7 @@ const pluginsCommandAdd = function (opts) {
           failInstalled.push(plugin);
         }
       });
+      copyText()
       if (successInstalled.length > 0) {
         console.log('\n DONE '.successTag, '组件'.success, `${successInstalled.join('、')}`.success.bold.italic, '添加成功\n'.success);
 
