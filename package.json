@@ -1,10 +1,10 @@
 {
   "name": "zpm_cli",
   "description": "zpm cli",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "author": {
-    "name": "智愚",
-    "email": "",
+    "name": "Keith",
+    "email": "cheenoalive@gmail.com",
     "website": "http://plugins.admin.dei2.com/"
   },
   "keywords": [
