@@ -38,7 +38,7 @@ program
   .description(
     '初始化项目: zpm init [, project_template] [, project_name] [, project_path]'
   )
-  .action(function () {
+  .action(function() {
     let defaultPath = `.${sep}`
     let questions = []
     let projectInfo = {
@@ -52,7 +52,7 @@ program
     let templatesPath = path.resolve(__dirname, `.${sep}templates`)
     let filenames = fs.readdirSync(templatesPath)
 
-    filenames.forEach(function (fname) {
+    filenames.forEach(function(fname) {
       let _realFilePath = path.join(templatesPath, fname)
       let _stat = fs.statSync(_realFilePath)
       if (_stat.isDirectory()) {
@@ -146,7 +146,7 @@ program
         }
       }
     }
-    prompt(questions).then(function (answers) {
+    prompt(questions).then(function(answers) {
       if (answers.project_template) {
         projectInfo.template = answers.project_template.toLowerCase()
       }
@@ -160,11 +160,11 @@ program
       realPath += sep + projectInfo.name
       let globalVarName = ''
       if (projectInfo.template === 'vuex') {
-        globalVarName = projectInfo.name.replace(/(\..)*/g, function (item) {
+        globalVarName = projectInfo.name.replace(/(\..)*/g, function(item) {
           return item.charAt(1).toUpperCase()
         })
       }
-      fs.exists(realPath, function (exists) {
+      fs.exists(realPath, function(exists) {
         if (!exists) {
           shelljs.exec(`mkdir ${realPath}`)
         }
@@ -172,14 +172,14 @@ program
           shelljs.cp(
             '-R',
             `${path.join(__dirname, '.' + sep)}templates${sep}${
-            projectInfo.template
+              projectInfo.template
             }${sep}*`,
             `${realPath}`
           )
           shelljs.cp(
             '-R',
             `${path.join(__dirname, '.' + sep)}templates${sep}${
-            projectInfo.template
+              projectInfo.template
             }${sep}.*`,
             `${realPath}`
           )
@@ -199,7 +199,7 @@ program
             `${projectInfo.template}`.success.bold.italic,
             '添加成功\n'.success
           )
-          if (projectInfo.template === 'webpack') {
+          if (projectInfo.template.match(/^enkel\-/)) {
             console.log(` cd ${projectInfo.name}`.data)
             console.log(` npm install`.data)
             console.log(` npm run dev\n`.data)
@@ -217,7 +217,7 @@ program
 program
   .command('plugins')
   .description('添加组件：zpm plugins [, 操作名] [, 组件名]')
-  .action(function () {
+  .action(function() {
     let args = process.argv
     let tul = lib.getAllPlugins()
     if (args.length < 4) {
@@ -255,7 +255,7 @@ program
     }
   })
 
-program.command('sync').action(function () {
+program.command('sync').action(function() {
   lib.zpmSyncAction()
   // let args = process.argv;
   // // 待安装的组件
@@ -301,21 +301,21 @@ program.command('sync').action(function () {
   // }
 })
 
-program.command('ls').action(function () {
+program.command('ls').action(function() {
   lib.zpmListAction()
 })
 
-program.command('list').action(function () {
+program.command('list').action(function() {
   lib.zpmListAction()
 })
 
-program.command('help').action(function () {
+program.command('help').action(function() {
   lib.showAllCommands(true)
 })
-program.command('?').action(function () {
+program.command('?').action(function() {
   lib.showAllCommands(true)
 })
-program.command('？').action(function () {
+program.command('？').action(function() {
   lib.showAllCommands(true)
 })
 

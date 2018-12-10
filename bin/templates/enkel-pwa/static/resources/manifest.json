@@ -1,0 +1,40 @@
+{
+  "dir": "ltr",
+  "lang": "en",
+  "short_name": "Enkel",
+  "name": "Enkel",
+  "icons": [
+    {
+      "src": "/static/images/96.png",
+      "type": "image/png",
+      "sizes": "96x96"
+    },
+    {
+      "src": "/static/images/144.png",
+      "type": "image/png",
+      "sizes": "144x144"
+    },
+    {
+      "src": "/static/images/188.png",
+      "type": "image/png",
+      "sizes": "188x188"
+    },
+    {
+      "src": "/static/images/192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/static/images/512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "scope": "/",
+  "description": "Enkel pwa demo",
+  "orientation": "portrait",
+  "background_color": "#0A510F",
+  "theme_color": "#0A510F",
+  "display": "standalone",
+  "start_url": "/"
+}
