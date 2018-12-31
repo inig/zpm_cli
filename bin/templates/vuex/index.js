@@ -44,7 +44,7 @@ import mixins from './mixins'
 global.Vue = Vue
 try {
   require('./plugins/index')
-} catch (err) {}
+} catch (err) { }
 
 if (typeof weex.init === 'function') weex.init(Vue)
 
@@ -60,8 +60,50 @@ Object.keys(filters).forEach(key => {
 Vue.mixin(mixins)
 
 if (!global.{{APP_NAME}}) {
-  global.{{APP_NAME}} = {}
+  global.{{APP_NAME}} = { }
 }
 global.{{APP_NAME}}.eventHub = new Vue()
+
+/**
+ * 通过key获取value，忽略key首字母的大小写
+ * @param key
+ * @param obj
+ * @returns {*}
+ */
+Vue.prototype.$getValueByKey = function (key, obj) {
+  let _upper = key.replace(/^[a-zA-Z]/, item => item.toUpperCase())
+  if (obj.hasOwnProperty(_upper)) {
+    return obj[_upper]
+  }
+  let _lower = key.replace(/^[a-zA-Z]/, item => item.toLowerCase())
+  if (obj.hasOwnProperty(_lower)) {
+    return obj[_lower]
+  }
+  return ''
+}
+
+Vue.prototype.adjustWeb = function (s) {
+  let deviceInfo = weex.config.env
+  let _s = 0
+  if (deviceInfo.platform.toLowerCase() === 'web') {
+    _s = s / deviceInfo.dpr
+  } else {
+    _s = s
+  }
+  return _s
+}
+
+Vue.prototype.getScreenHeight = function () {
+  const { env } = weex.config;
+  return env.deviceHeight / env.deviceWidth * 750;
+}
+
+Vue.prototype.weexReportEvt = async function (params) {
+  // AppDataUtil.weexReportEvt(params)
+}
+
+Vue.config.errorHandler = err => {
+  console.log(err.message)
+}
 
 new Vue(Vue.util.extend({ el: '#root', store }, App))

@@ -48,8 +48,9 @@ const ZpmUtil = (function () {
 
   const isEmptyObj = function (obj) {
     var t;
-    for (t in obj)
-      {return !1}
+    for (t in obj) {
+      return !1
+    }
     return !0
   }
 
@@ -87,11 +88,19 @@ const ZpmUtil = (function () {
     }
     return outIndex
   }
+
+  const __S4 = function () {
+    return (((1 + Math.random()) * 0x10000) | 0).toString(16).substring(1)
+  }
+  function __getUUID (prefix) {
+    return (prefix || '') + (__S4() + __S4() + '-' + __S4() + '-' + __S4() + '-' + __S4() + '-' + __S4() + __S4() + __S4())
+  }
   return {
     adjustWeb: _adjustWeb,
     isEmptyObj: isEmptyObj,
     getDataAttr: getDataAttr,
-    findIndexByKey: _findIndexByKey
+    findIndexByKey: _findIndexByKey,
+    getUUID: __getUUID
   }
 })()
 
