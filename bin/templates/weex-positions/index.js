@@ -99,7 +99,7 @@ Vue.prototype.getScreenHeight = function () {
 }
 
 Vue.prototype.weexReportEvt = async function (params) {
-  // AppDataUtil.weexReportEvt(params)
+  AppDataUtil.weexReportEvt(params)
 }
 
 Vue.config.errorHandler = err => {

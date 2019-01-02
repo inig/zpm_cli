@@ -34,7 +34,7 @@ const request = axios.create({
 let BASE_PLUGIN_URL = 'https://static.dei2.com/plugins/'
 let BASE_PLUGIN_ZIP_URL = 'https://static.dei2.com/plugins_zips/'
 
-const validateName = function(input) {
+const validateName = function (input) {
   let done = this.async()
 
   if (input.trim() === '') {
@@ -43,13 +43,13 @@ const validateName = function(input) {
   done(null, true)
 }
 
-const isEmptyObj = function(obj) {
+const isEmptyObj = function (obj) {
   var t
   for (t in obj) return !1
   return !0
 }
 
-const copyText = function() {
+const copyText = function () {
   console.log(
     [
       '                                                                                                           ',
@@ -86,7 +86,7 @@ const copyText = function() {
 /**
  * 显示所有脚手架命令
  */
-const showAllCommands = function(withCopyRight) {
+const showAllCommands = function (withCopyRight) {
   withCopyRight && copyText()
   console.log('\n 所有命令如下'.data)
   console.log('\n - init\t\t添加模板'.data)
@@ -108,7 +108,7 @@ const showAllCommands = function(withCopyRight) {
   console.log('\n - help, ?\t显示所有命令'.data)
   console.log(' \t\tzpm help 或者 zpm ?\n'.data)
 }
-const showAllPluginsCommands = function(withCopyRight) {
+const showAllPluginsCommands = function (withCopyRight) {
   withCopyRight && copyText()
   console.log('\n zpm plugins\t命令所有操作名如下'.data)
   console.log(
@@ -121,7 +121,7 @@ const showAllPluginsCommands = function(withCopyRight) {
   console.log(' - help, ?\t显示plugins命令的操作名'.data)
   console.log(' \t\tzpm plugins help 或者 zpm plugins ?\n'.data)
 }
-const showSyncHelp = function(withCopyRight) {
+const showSyncHelp = function (withCopyRight) {
   withCopyRight && copyText()
   console.log('\n zpm sync\t同步所有已经安装的组件'.data)
   console.log('\n - all\t\t同步所有服务端的组件'.data)
@@ -141,7 +141,7 @@ const showSyncHelp = function(withCopyRight) {
   console.log(' \t\tzpm sync help 或者 zpm sync ?\n'.data)
 }
 
-const showInitHelp = function(withCopyRight) {
+const showInitHelp = function (withCopyRight) {
   withCopyRight && copyText()
   console.log('\n zpm init\t添加模板'.data)
   console.log(' \t\tzpm init [, 模板名] [, 项目名] [, 项目路径]'.data)
@@ -149,7 +149,7 @@ const showInitHelp = function(withCopyRight) {
   console.log(' \t\tzpm init help 或者 zpm init ?\n'.data)
 }
 
-const showZpmListActionHelp = function(withCopyRight) {
+const showZpmListActionHelp = function (withCopyRight) {
   withCopyRight && copyText()
   console.log('\n zpm ls, list\t\t查询命令'.data)
   console.log('\n - author, authors\t显示所有组件作者'.data)
@@ -171,7 +171,7 @@ const showZpmListActionHelp = function(withCopyRight) {
 /**
  * 本地未安装组件的提示
  */
-const showNoPluginsTip = function(withCopyRight) {
+const showNoPluginsTip = function (withCopyRight) {
   withCopyRight && copyText()
   console.log('\n WARN '.warnTag, '本地未安装任何组件'.warn)
   console.log('\n       您还可以: '.data)
@@ -190,7 +190,7 @@ const showNoPluginsTip = function(withCopyRight) {
   )
 }
 
-const getAllPlugins = function() {
+const getAllPlugins = function () {
   let templatesPath = path.resolve(__dirname, `.${sep}plugins`)
   let allPlugins = []
   let allPluginsConfig = []
@@ -198,7 +198,7 @@ const getAllPlugins = function() {
   let exists = fs.existsSync(templatesPath)
   if (exists) {
     let filenames = fs.readdirSync(templatesPath)
-    filenames.forEach(function(fname) {
+    filenames.forEach(function (fname) {
       let _realFilePath = path.join(templatesPath, fname)
       let _stat = fs.statSync(_realFilePath)
       if (_stat.isDirectory()) {
@@ -227,7 +227,7 @@ const getAllPlugins = function() {
   return [allPlugins, pluginChoice, allPluginsConfig]
 }
 
-const pluginsCommandList = function(opts) {
+const pluginsCommandList = function (opts) {
   copyText()
   let allPluginsConfig = opts.allPluginsConfig
   for (let i = 0; i < allPluginsConfig.length; i++) {
@@ -245,7 +245,7 @@ const pluginsCommandList = function(opts) {
       console.log(
         `    Author   ${allPluginsConfig[i].value.author.name} (${
           allPluginsConfig[i].value.author.email
-        })`.data
+          })`.data
       )
       console.log(`    Latest   v${allPluginsConfig[i].value.version}`.data)
     }
@@ -262,7 +262,7 @@ const pluginsCommandList = function(opts) {
  * @returns {string}
  * @private
  */
-const _getHtmlCopyRight = function(pkg) {
+const _getHtmlCopyRight = function (pkg) {
   // copyText();
   let _replacement =
     '<!--\n' +
@@ -288,7 +288,7 @@ const _getHtmlCopyRight = function(pkg) {
  * @returns {string}
  * @private
  */
-const _getJsCopyRight = function(pkg) {
+const _getJsCopyRight = function (pkg) {
   // copyText();
   let _replacement =
     '  /**\n' +
@@ -309,7 +309,7 @@ const _getJsCopyRight = function(pkg) {
   return _replacement
 }
 
-const getCopyRightText = function(pkg, type) {
+const getCopyRightText = function (pkg, type) {
   let _replacement = ''
   switch (type) {
     case 'html':
@@ -327,7 +327,7 @@ const getCopyRightText = function(pkg, type) {
   return _replacement
 }
 
-const pluginsCommandAdd = function(opts) {
+const pluginsCommandAdd = function (opts) {
   let questions = []
   let pluginInfo = {
     plugins: []
@@ -340,7 +340,7 @@ const pluginsCommandAdd = function(opts) {
   let illegalPlugins = []
   // 存在的组件
   let legalPlugins = []
-  newPlugins.forEach(function(p) {
+  newPlugins.forEach(function (p) {
     if (p.indexOf('*') < 0) {
       // 不存在通配符
       if (plugins.indexOf(p) < 0) {
@@ -351,7 +351,7 @@ const pluginsCommandAdd = function(opts) {
     } else {
       // 存在通配符
       let outPlugins = []
-      plugins.forEach(function(plugin) {
+      plugins.forEach(function (plugin) {
         let regStr = new RegExp('^' + p.replace(/(\*)/g, '.*') + '$')
         if (plugin.match(regStr)) {
           if (
@@ -384,19 +384,19 @@ const pluginsCommandAdd = function(opts) {
       `组件 ${illegalPlugins.join('、')} 不存在！\n`.error
     )
   }
-  prompt(questions).then(function(answers) {
+  prompt(questions).then(function (answers) {
     if (answers.plugins) {
       pluginInfo.plugins = answers.plugins
       legalPlugins = answers.plugins
     }
     let realPath = path.resolve(process.cwd(), `.${sep}plugins`)
-    fs.exists(realPath, function(exists) {
+    fs.exists(realPath, function (exists) {
       if (!exists) {
         shelljs.exec(`mkdir ${realPath}`)
       }
       let successInstalled = []
       let failInstalled = []
-      legalPlugins.forEach(function(plugin) {
+      legalPlugins.forEach(function (plugin) {
         try {
           shelljs.cp(
             '-R',
@@ -446,23 +446,23 @@ const pluginsCommandAdd = function(opts) {
           txt = bytesRead || ''
           for (let i = 0; i < successInstalled.length; i++) {
             let comName = successInstalled[i]
-              .replace(/^([A-Z])/, function($1) {
+              .replace(/^([A-Z])/, function ($1) {
                 return $1.toLowerCase()
               })
-              .replace(/([A-Z])/g, function($1) {
+              .replace(/([A-Z])/g, function ($1) {
                 return '-' + $1.toLowerCase()
               })
             if (txt === '') {
               txt =
                 `import ${successInstalled[i]} from './${
-                  successInstalled[i]
+                successInstalled[i]
                 }.vue'\n` + txt
               txt += `Vue.component('${comName}', ${successInstalled[i]})\n`
             } else {
               if (txt.indexOf(successInstalled[i]) < 0) {
                 txt =
                   `import ${successInstalled[i]} from './${
-                    successInstalled[i]
+                  successInstalled[i]
                   }.vue'\n` + txt
                 txt += `Vue.component('${comName}', ${successInstalled[i]})\n`
               }
@@ -489,7 +489,7 @@ const pluginsCommandAdd = function(opts) {
  * 同步所有可用的组件
  * @param callback
  */
-const syncPlugins = function(callback) {
+const syncPlugins = function (callback) {
   download(
     'https://codeload.github.com/lsliangshan/zpm_plugins/zip/master',
     `${path.resolve(__dirname, '..' + sep)}`,
@@ -534,7 +534,7 @@ const syncPlugins = function(callback) {
     })
 }
 
-const syncAllPluginsFromDei2 = async function syncAllPlugins(args) {
+const syncAllPluginsFromDei2 = async function syncAllPlugins (args) {
   let _searchConditions = {}
   if (args && args.users && args.users.length > 0) {
     _searchConditions.username = args.users.join(';')
@@ -570,7 +570,7 @@ const syncAllPluginsFromDei2 = async function syncAllPlugins(args) {
   }
 }
 
-const syncPluginsFromDei2 = async function syncPluginsFromDei2(args) {
+const syncPluginsFromDei2 = async function syncPluginsFromDei2 (args) {
   let _allPlugins = args.plugins.split(';')
   let i = 0
   let failedPlugins = []
@@ -591,7 +591,7 @@ const syncPluginsFromDei2 = async function syncPluginsFromDei2(args) {
   }
 }
 
-const syncOnePluginFromDei2 = function syncOnePluginFromDei2(pluginName, ps) {
+const syncOnePluginFromDei2 = function syncOnePluginFromDei2 (pluginName, ps) {
   let pluginsPath = path.resolve(__dirname, '.' + sep + 'plugins')
   if (!fs.existsSync(pluginsPath)) {
     fs.mkdirSync(pluginsPath)
@@ -631,7 +631,7 @@ const syncOnePluginFromDei2 = function syncOnePluginFromDei2(pluginName, ps) {
   })
 }
 
-const getPluginsByUser = async function getPluginsByUser(args) {
+const getPluginsByUser = async function getPluginsByUser (args) {
   if (!args || !args.username || args.username.trim() === '') {
     return []
   }
@@ -648,7 +648,7 @@ const getPluginsByUser = async function getPluginsByUser(args) {
   }
 }
 
-const syncPluginsByUsersOrPluginNamesFromDei2 = async function syncPluginsByUsersOrPluginNamesFromDei2(
+const syncPluginsByUsersOrPluginNamesFromDei2 = async function syncPluginsByUsersOrPluginNamesFromDei2 (
   args
 ) {
   let plugins = []
@@ -687,7 +687,7 @@ const syncPluginsByUsersOrPluginNamesFromDei2 = async function syncPluginsByUser
   }
 }
 
-const syncOnePlugin = function(plugin) {
+const syncOnePlugin = function (plugin) {
   let pluginsRoot = path.resolve(__dirname, '.' + sep + 'plugins')
   !fs.existsSync(pluginsRoot) && fs.mkdirSync(pluginsRoot)
   let pluginPath = path.resolve(__dirname, '.' + sep + 'plugins' + sep + plugin)
@@ -732,7 +732,7 @@ const syncOnePlugin = function(plugin) {
       })
   })
   Promise.all([downPkgPromise, downVuePromise])
-    .then(function(res) {
+    .then(function (res) {
       console.log(
         ' DONE '.successTag,
         '组件',
@@ -769,7 +769,7 @@ const syncOnePlugin = function(plugin) {
  * @param filename, [必需] 待替换文件的真实全路径（path + filename + file_suffix）
  * @param replaceAttributes, [可选] 当 substr 为字符串类型时有效，包含属性 "g"、"i" 和 "m"，分别用于指定全局匹配、区分大小写的匹配和多行匹配。
  */
-const replaceFileContent = function(
+const replaceFileContent = function (
   substr,
   replacement,
   filename,
@@ -790,7 +790,7 @@ const replaceFileContent = function(
   }
 }
 
-const _listAuthors = async function _listAuthors() {
+const _listAuthors = async function _listAuthors () {
   let users = []
   try {
     let usersData = await request.post('Zpm/cli/listUsers', {})
@@ -815,7 +815,7 @@ const _listAuthors = async function _listAuthors() {
   return users
 }
 
-const _listPlugins = async function _listPlugins(args) {
+const _listPlugins = async function _listPlugins (args) {
   let queryUsers = args.users
   for (let u = 0; u < queryUsers.length; u++) {
     if (queryUsers[u].match(/^@.+/)) {
@@ -856,14 +856,14 @@ const _listPlugins = async function _listPlugins(args) {
       console.log(
         `    Author   ${plugins[i].author.username} ${
           plugins[i].author.phonenum
-        }`.data
+          }`.data
       )
     }
     console.log(' ')
   }
 }
 
-const _listTemplates = function() {
+const _listTemplates = function () {
   copyText()
   console.log('\n可用的模板：default 、 vuex'.warn)
   console.log(
@@ -873,7 +873,7 @@ const _listTemplates = function() {
   console.log('\tvuex模板：vuex模板，支持vuex。zpm init vuex 项目名'.data)
 }
 
-const zpmListAction = async function() {
+const zpmListAction = async function () {
   let args = process.argv
   let _listType = args.slice(3)[0]
   switch (_listType) {
@@ -902,7 +902,7 @@ const zpmListAction = async function() {
   }
 }
 
-const zpmSyncAction = async function zpmSyncAction() {
+const zpmSyncAction = async function zpmSyncAction () {
   let args = process.argv
   let params = args.slice(3)
   if (params.length === 0) {

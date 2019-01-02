@@ -31,79 +31,84 @@
  **                                              不见满街漂亮妹，哪个归得程序员？
  */
 /**
- * Created by liangshan on 2017/7/19.
+ * Created by liangshan on 2018/7/6.
  */
-import weex from 'weex-vue-render'
-import Vue from 'vue'
-import parse from 'url-parse'
-import App from './index.vue'
-import store from './store'
-import * as filters from './filters'
-import mixins from './mixins'
+const storage = weex.requireModule('storage')
 
-global.Vue = Vue
-try {
-  require('./plugins/index')
-} catch (err) { }
-
-if (typeof weex.init === 'function') weex.init(Vue)
-
-weex.config.zpfe = weex.config.zpfe || {}
-weex.config.zpfe.query = parse(weex.config.bundleUrl, true).query
-
-// register global utility filters.
-Object.keys(filters).forEach(key => {
-  Vue.filter(key, filters[key])
-})
-
-// register global mixins.
-Vue.mixin(mixins)
-
-if (!global.$$APP_NAME$$) {
-  global.$$APP_NAME$$ = {}
-}
-global.$$APP_NAME$$.eventHub = new Vue()
-
-/**
- * 通过key获取value，忽略key首字母的大小写
- * @param key
- * @param obj
- * @returns {*}
- */
-Vue.prototype.$getValueByKey = function (key, obj) {
-  let _upper = key.replace(/^[a-zA-Z]/, item => item.toUpperCase())
-  if (obj.hasOwnProperty(_upper)) {
-    return obj[_upper]
+const StorageUtil = (function () {
+  const _getItem = function (name) {
+    return new Promise((resolve, reject) => {
+      storage.getItem(name, event => {
+        if (event.result === 'success') {
+          let _d = event.data
+          try {
+            _d = JSON.parse(event.data)
+          } catch (err) {
+            _d = event.data
+          }
+          resolve({
+            result: 'success',
+            data: _d
+          })
+        } else {
+          resolve(event)
+        }
+      })
+    })
   }
-  let _lower = key.replace(/^[a-zA-Z]/, item => item.toLowerCase())
-  if (obj.hasOwnProperty(_lower)) {
-    return obj[_lower]
+
+  const _setItem = function (name, value) {
+    return new Promise((resolve, reject) => {
+      let _value = value
+      if (typeof _value !== 'string') {
+        _value = JSON.stringify(_value)
+      }
+      storage.setItem(name, _value, event => {
+        if (event.result === 'success') {
+          resolve(event)
+        } else {
+          resolve(event)
+        }
+      })
+    })
   }
-  return ''
-}
 
-Vue.prototype.adjustWeb = function (s) {
-  let deviceInfo = weex.config.env
-  let _s = 0
-  if (deviceInfo.platform.toLowerCase() === 'web') {
-    _s = s / deviceInfo.dpr
-  } else {
-    _s = s
+  const _removeItem = function (name) {
+    return new Promise((resolve, reject) => {
+      if (name) {
+        storage.removeItem(name, event => {
+          if (event.result === 'success') {
+            resolve(event)
+          } else {
+            resolve(event)
+          }
+        })
+      } else {
+        resolve({
+          result: 'fail',
+          data: 'undefined'
+        })
+      }
+    })
   }
-  return _s
-}
 
-Vue.prototype.getScreenHeight = function () {
-  const { env } = weex.config;
-  return env.deviceHeight / env.deviceWidth * 750;
-}
+  const _getAllKeys = function () {
+    return new Promise((resolve, reject) => {
+      storage.getAllKeys(event => {
+        if (event.result === 'success') {
+          resolve(event)
+        } else {
+          resolve(event)
+        }
+      })
+    })
+  }
+  return {
+    getItem: _getItem,
+    setItem: _setItem,
+    removeItem: _removeItem,
+    getAllKeys: _getAllKeys
+  }
+})()
 
-Vue.prototype.weexReportEvt = async function (params) {
-  // AppDataUtil.weexReportEvt(params)
-}
-
-Vue.config.errorHandler = err => {
-  console.log(err.message)
-}
-
-new Vue(Vue.util.extend({ el: '#root', store }, App))
+export default StorageUtil
