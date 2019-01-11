@@ -1,5 +1,14 @@
+<!--
+ * @Company: 智联招聘
+ * @Author: xuebin.me
+ * @Date: 2018-12-12 18:33:24
+ * @LastEditors: Leo
+ * @LastEditTime: 2019-01-10 11:57:14
+ * @version: 0.0.0
+ * @Description: 
+ -->
 <template>
-  <div class="wrapper"
+  <div class="{{APP_NAME}}"
        @viewappear="openPage"
        @viewdisappear="leavePage">
     <TopNav :title="title"></TopNav>
@@ -11,42 +20,40 @@
 </template>
 
 <script>
+import { mapState, mapGetters } from 'vuex'
 import TopNav from '../../components/TopNav.vue'
 import ErrorPage from '../../components/ErrorPage.vue'
 import MainList from './components/MainList.vue'
 
-import { actions } from '../../store/constants'
-import { mapState, mapGetters } from 'vuex'
-import { stayTime } from '../../mixin/index'
+import globalMixin from '../../mixins/index'
 import { log } from '../../utils'
-import { feApiFetch } from '../../utils/request'
 
 export default {
-  mixins: [stayTime],
+  mixins: [globalMixin],
   components: { TopNav, ErrorPage, MainList },
-  data () {
+  data() {
     return {
-      pageStatus: 0,
-      title: ''
+      pageStatus: 0, // 0 默认初始状态；1 加载完成；-1 出错了
+      title: '页面标题'
     }
   },
   computed: {
     ...mapState({}),
-    ...mapGetters(['uid'])
+    ...mapGetters([])
   },
-  async created () {
-    await this.$store.dispatch(actions.sys.GET_ZPFE_DATA)
+  async created() {
+    await this.$store.dispatch('getZpfeData')
     this.pageStatus = 1
     this.init()
   },
   methods: {
-    async refresh () {
+    async refresh() {
       this.pageStatus = 1
       await this.init()
     },
-    async init () {
+    async init() {
       try {
-        // await Promise.all([this.getUserInfo(), this.getUserSetting()])
+        // TODO 页面初始化
       } catch (e) {
         log.toast(e.message)
         this.pageStatus = -1
@@ -57,12 +64,13 @@ export default {
 </script>
 
 <style scoped>
-.wrapper {
+.{{APP_NAME}} {
   flex: 1;
 }
 </style>
 
 <style>
+/* stylelint-disable */
 html,
 body,
 .weex-root {
@@ -71,4 +79,5 @@ body,
   height: 100%;
   width: 100%;
 }
+/* stylelint-enable */
 </style>
