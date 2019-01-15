@@ -79,7 +79,7 @@ const copyText = function () {
   console.log(`\t\t\t\t\t${pkg.name} powered by ${pkg.author.name}`.success)
   console.log(
     ` \t\t\t\t更多内容: ${pkg.author.website ||
-      'http://plugins.admin.dei2.com/'}`.data
+      'https://admin.plugins.dei2.com/'}`.data
   )
 }
 
@@ -805,7 +805,7 @@ const _listAuthors = async function _listAuthors () {
   copyText()
   if (users.length < 1) {
     console.log(
-      '\n   无注册的开发者，您可以访问 http://plugins.admin.dei2.com 注册开发者并提交组件。'
+      '\n   无注册的开发者，您可以访问 https://admin.plugins.dei2.com 注册开发者并提交组件。'
         .data
     )
   } else {
@@ -846,7 +846,7 @@ const _listPlugins = async function _listPlugins (args) {
   copyText()
   if (plugins.length < 1) {
     console.log(
-      '\n   无可用的组件，您可以访问 http://plugins.admin.dei2.com 注册开发者并提交组件。'
+      '\n   无可用的组件，您可以访问 https://admin.plugins.dei2.com 注册开发者并提交组件。'
         .data
     )
   } else {
