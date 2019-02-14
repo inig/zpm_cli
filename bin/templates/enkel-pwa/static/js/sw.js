@@ -41,6 +41,12 @@ const DEFAULT_CONFIG = {
       maxAgeSeconds: 43200,
       strategies: 'staleWhileRevalidate'
     },
+    font: {
+      cacheName: 'font',
+      entries: 40,
+      maxAgeSeconds: 43200,
+      strategies: 'staleWhileRevalidate'
+    },
     routes: [
       // {
       //   pathname: '/pwa',
@@ -55,7 +61,7 @@ const DEFAULT_CONFIG = {
   }
 }
 
-function configHandler(config) {
+function configHandler (config) {
   if (config.caches.js) {
     workbox.routing.registerRoute(
       /.*\.(js)$/,
@@ -77,7 +83,7 @@ function configHandler(config) {
 
   if (config.caches.html) {
     workbox.routing.registerRoute(
-      function(event) {
+      function (event) {
         if (event.url.pathname === '/') {
           return true
         } else if (event.url.pathname.match(/.*\.(html|htm|jsp)$/)) {
@@ -143,10 +149,32 @@ function configHandler(config) {
     )
   }
 
+  if (config.caches.font) {
+    workbox.routing.registerRoute(
+      /.*\.(eot|otf|fon|font|ttf|ttc|woff|woff2)$/,
+      workbox.strategies[config.caches.img.strategies]({
+        cacheName:
+          config.caches.prefix +
+          config.caches.font.cacheName +
+          '-' +
+          config.caches.version,
+        plugins: [
+          new workbox.cacheableResponse.Plugin({
+            statuses: [0, 200]
+          }),
+          new workbox.expiration.Plugin({
+            maxEntries: config.caches.font.entries,
+            maxAgeSeconds: config.caches.font.maxAgeSeconds
+          })
+        ]
+      })
+    )
+  }
+
   if (config.caches.routes.length > 0) {
     config.caches.routes.map(item => {
       workbox.routing.registerRoute(
-        function(event) {
+        function (event) {
           if (item.pathname) {
             return (
               event.url.pathname.replace(/\/$/, '') ===
@@ -199,17 +227,20 @@ function configHandler(config) {
   })
 }
 
-fetch('/static/resources/config.json')
-  .then(response => {
-    if (response.ok) {
-      return response.json()
-    } else {
-      throw new Error(response.statusText)
-    }
-  })
-  .then(data => {
-    configHandler(Object.assign({}, DEFAULT_CONFIG, data))
-  })
-  .catch(() => {
-    configHandler(DEFAULT_CONFIG)
-  })
+configHandler(Object.assign({}, DEFAULT_CONFIG, ENKEL_SW_CONFIG))
+// fetch('/static/resources/config.js')
+//   .then(response => {
+//     if (response.ok) {
+//       return response.json()
+//     } else {
+//       throw new Error(response.statusText)
+//     }
+//   })
+//   .then(data => {
+//     console.log('...response 2: ', data)
+//     configHandler(Object.assign({}, DEFAULT_CONFIG, data))
+//   })
+//   .catch((err) => {
+//     console.log('error: ', err.message)
+//     configHandler(DEFAULT_CONFIG)
+//   })

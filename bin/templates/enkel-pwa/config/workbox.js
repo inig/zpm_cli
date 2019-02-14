@@ -7,7 +7,7 @@ module.exports = {
   swSrc: './static/js/sw.js',
   swDest: path.join(dist, 'sw.js'),
   importWorkboxFrom: 'disabled',
-  importScripts: ['https://g.alicdn.com/kg/workbox/3.3.0/workbox-sw.js']
+  importScripts: ['https://g.alicdn.com/kg/workbox/3.3.0/workbox-sw.js', '/static/resources/enkel-sw-config.js']
   // ,
   // clientsClaim: true,
   // skipWaiting: true

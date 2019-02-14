@@ -54,7 +54,7 @@ const store = new Vuex.Store({
 
 export default store
 
-if (!global.{{APP_NAME}}) {
-  global.{{APP_NAME}} = {}
+if (!global.$$APP_NAME$$) {
+  global.$$APP_NAME$$ = {}
 }
-global.{{APP_NAME}}.store = store
+global.$$APP_NAME$$.store = store

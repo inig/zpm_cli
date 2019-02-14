@@ -395,7 +395,7 @@ const AppDataUtil = (function (ZPFE) {
           _fn_zpdOpenUrl(data)
         } else {
           ZPFE.weexGoToWeexOrWebViewByUrl(data)
-        }
+        }        
         resolve(true)
       } catch (err) {
         reject(new Error(err.message))
@@ -661,20 +661,20 @@ const AppDataUtil = (function (ZPFE) {
    */
   const _weexGetStatusBarHeight = function () {
     return new Promise((resolve) => {
-      let statusBarHeight = 60
-      try {
-        ZPFE.weexGetStatusBarHeight(res => {
-          if (weex.config.env.platform.toLowerCase() === 'ios') {
-            statusBarHeight = res.status_H * 2 + 20
-          } else {
-            statusBarHeight = res.status_H * 2 / weex.config.env.scale + 20
-          }
-          resolve(statusBarHeight)
-        })
-      } catch (err) {
-        resolve(60)
-      }
-    })
+        let statusBarHeight = 60
+        try {
+            ZPFE.weexGetStatusBarHeight(res => {
+                if (weex.config.env.platform.toLowerCase() === 'ios') {
+                    statusBarHeight = res.status_H * 2 + 20
+                } else {
+                    statusBarHeight = res.status_H * 2 / weex.config.env.scale + 20
+                }
+                resolve(statusBarHeight)
+            })
+        } catch (err) {
+            resolve(60)
+        }
+    })   
   }
 
   /**
@@ -710,7 +710,7 @@ const AppDataUtil = (function (ZPFE) {
       try {
         ZPFE.weexRequestNativeShowBestEmployDialog()
         resolve(true)
-      } catch (err) {
+      } catch (err) {        
         resolve(true)
       }
     })
@@ -740,7 +740,7 @@ const AppDataUtil = (function (ZPFE) {
   const _zpmCompanyDetail = function (data) {
     return new Promise(resolve => {
       try {
-        ZPFE.zpmCompanyDetail(data, res => { })
+        ZPFE.zpmCompanyDetail(data, res => {})
         resolve(true)
       } catch (err) {
         resolve(true)
