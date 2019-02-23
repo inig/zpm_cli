@@ -1,11 +1,11 @@
 {
   "name": "zpm_cli",
-  "description": "zpm cli",
-  "version": "0.3.4",
+  "description": "快速生成weex/vue项目模板",
+  "version": "0.3.5",
   "author": {
-    "name": "Keith",
+    "name": "智愚",
     "email": "cheenoalive@gmail.com",
-    "website": "http://plugins.admin.dei2.com/"
+    "website": "https://admin.plugins.dei2.com/"
   },
   "keywords": [
     "toolkit",
@@ -38,9 +38,5 @@
     "type": "git",
     "url": "git+https://github.com/lsliangshan/zpm_cli.git"
   },
-  "licenses": [
-    {
-      "type": "MIT"
-    }
-  ]
+  "license": "MIT"
 }

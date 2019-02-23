@@ -76,10 +76,10 @@ const copyText = function () {
       '                                                                                                           '
     ].join('\n')
   )
-  console.log(`\t\t\t\t\t${pkg.name} powered by ${pkg.author.name}`.success)
+  console.log(`\t\t\t\t\t${pkg.name} @${pkg.version} powered by ${pkg.author.name}`.warn)
+  console.log(` \t\t\t\t${pkg.description}`.data)
   console.log(
-    ` \t\t\t\t更多内容: ${pkg.author.website ||
-      'https://admin.plugins.dei2.com/'}`.data
+    ` \t\t\t\t更多内容: ${pkg.author.website}`.data
   )
 }
 
@@ -87,7 +87,7 @@ const copyText = function () {
  * 显示所有脚手架命令
  */
 const showAllCommands = function (withCopyRight) {
-  withCopyRight && copyText()
+  // withCopyRight && copyText()
   console.log('\n 所有命令如下'.data)
   console.log('\n - init\t\t添加模板'.data)
   console.log(
@@ -106,10 +106,13 @@ const showAllCommands = function (withCopyRight) {
   )
   // showSyncHelp(false);
   console.log('\n - help, ?\t显示所有命令'.data)
-  console.log(' \t\tzpm help 或者 zpm ?\n'.data)
+  console.log(' \t\tzpm help 或者 zpm ?'.data)
+
+  console.log('\n - whoami\t查看作者'.data)
+  console.log(' \t\tzpm whoami\n'.data)
 }
 const showAllPluginsCommands = function (withCopyRight) {
-  withCopyRight && copyText()
+  // withCopyRight && copyText()
   console.log('\n zpm plugins\t命令所有操作名如下'.data)
   console.log(
     ' - add\t\t添加组件，多个组件以空格区分，支持 * （通配符，匹配一个或多个字符）'
@@ -122,7 +125,7 @@ const showAllPluginsCommands = function (withCopyRight) {
   console.log(' \t\tzpm plugins help 或者 zpm plugins ?\n'.data)
 }
 const showSyncHelp = function (withCopyRight) {
-  withCopyRight && copyText()
+  // withCopyRight && copyText()
   console.log('\n zpm sync\t同步所有已经安装的组件'.data)
   console.log('\n - all\t\t同步所有服务端的组件'.data)
   console.log(' \t\tzpm sync all'.data)
@@ -142,7 +145,7 @@ const showSyncHelp = function (withCopyRight) {
 }
 
 const showInitHelp = function (withCopyRight) {
-  withCopyRight && copyText()
+  // withCopyRight && copyText()
   console.log('\n zpm init\t添加模板'.data)
   console.log(' \t\tzpm init [, 模板名] [, 项目名] [, 项目路径]'.data)
   console.log('\n - help, ?\t显示init命令的用法'.data)
@@ -150,7 +153,7 @@ const showInitHelp = function (withCopyRight) {
 }
 
 const showZpmListActionHelp = function (withCopyRight) {
-  withCopyRight && copyText()
+  // withCopyRight && copyText()
   console.log('\n zpm ls, list\t\t查询命令'.data)
   console.log('\n - author, authors\t显示所有组件作者'.data)
   console.log(
@@ -172,7 +175,7 @@ const showZpmListActionHelp = function (withCopyRight) {
  * 本地未安装组件的提示
  */
 const showNoPluginsTip = function (withCopyRight) {
-  withCopyRight && copyText()
+  // withCopyRight && copyText()
   console.log('\n WARN '.warnTag, '本地未安装任何组件'.warn)
   console.log('\n       您还可以: '.data)
   console.log('\n       输入 "zpm sync all" 同步所有可用的组件'.data)
@@ -228,7 +231,7 @@ const getAllPlugins = function () {
 }
 
 const pluginsCommandList = function (opts) {
-  copyText()
+  // copyText()
   let allPluginsConfig = opts.allPluginsConfig
   for (let i = 0; i < allPluginsConfig.length; i++) {
     if (i === 0) {
@@ -427,7 +430,7 @@ const pluginsCommandAdd = function (opts) {
           failInstalled.push(plugin)
         }
       })
-      copyText()
+      // copyText()
       if (successInstalled.length > 0) {
         console.log(
           '\n DONE '.successTag,
@@ -802,10 +805,10 @@ const _listAuthors = async function _listAuthors () {
   } catch (err) {
     users = []
   }
-  copyText()
+  // copyText()
   if (users.length < 1) {
     console.log(
-      '\n   无注册的开发者，您可以访问 https://admin.plugins.dei2.com 注册开发者并提交组件。'
+      `\n   无注册的开发者，您可以访问 ${pkg.author.website} 注册开发者并提交组件。`
         .data
     )
   } else {
@@ -843,10 +846,10 @@ const _listPlugins = async function _listPlugins (args) {
   } catch (err) {
     plugins = []
   }
-  copyText()
+  // copyText()
   if (plugins.length < 1) {
     console.log(
-      '\n   无可用的组件，您可以访问 https://admin.plugins.dei2.com 注册开发者并提交组件。'
+      `\n   无可用的组件，您可以访问 ${pkg.author.website} 注册开发者并提交组件。`
         .data
     )
   } else {
@@ -864,8 +867,10 @@ const _listPlugins = async function _listPlugins (args) {
 }
 
 const _listTemplates = function () {
-  copyText()
-  console.log('\n可用的模板：default 、 vuex'.warn)
+  // copyText()
+  let templatesRoot = path.resolve(__dirname, '.' + sep + 'templates')
+  let templates = shelljs.ls(templatesRoot).stdout.replace(/\s$/g, '').split('\n')
+  console.log(('\n可用的模板：' + templates.join('、')).warn)
   console.log(
     '\tdefault模板：普通模板，只包含基本的vue环境，默认不支持vuex。zpm init default 项目名'
       .data
@@ -953,5 +958,6 @@ module.exports = {
   syncOnePlugin: syncOnePlugin,
   replaceFileContent: replaceFileContent,
   zpmListAction: zpmListAction,
-  zpmSyncAction: zpmSyncAction
+  zpmSyncAction: zpmSyncAction,
+  copyText: copyText
 }

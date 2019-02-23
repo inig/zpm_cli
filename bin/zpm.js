@@ -378,4 +378,8 @@ program.command('？').action(function () {
   lib.showAllCommands(true)
 })
 
+program.command('whoami').action(function () {
+  lib.copyText()
+})
+
 program.parse(process.argv)
