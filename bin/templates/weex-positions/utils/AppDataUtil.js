@@ -361,6 +361,7 @@ const AppDataUtil = (function (ZPFE) {
    * @returns {Promise<any>}
    * @private
    */
+  /* eslint-disable-next-line camelcase */
   const _fn_zpdOpenUrl = function _fn_zpdOpenUrl (data) {
     return new Promise(resolve => {
       try {
@@ -395,13 +396,33 @@ const AppDataUtil = (function (ZPFE) {
           _fn_zpdOpenUrl(data)
         } else {
           ZPFE.weexGoToWeexOrWebViewByUrl(data)
-        }        
+        }
         resolve(true)
       } catch (err) {
         reject(new Error(err.message))
       }
     })
   }
+
+  /**
+   * 跳转至APP的IMPositionList
+   * @param data
+   *  ''
+   * @returns {Promise<any>}
+   * @private
+   */
+  const _weexEnterIMPositionList = function (data) {
+    return new Promise((resolve, reject) => {
+      try {
+        ZPFE.weexEnterIMPositionList(data || '', (res) => {
+          resolve(res || {})
+        })
+      } catch (err) {
+        reject(new Error(err.message))
+      }
+    })
+  }
+
   /**
    * 跳转至APP的登录页
    * @param data
@@ -571,6 +592,7 @@ const AppDataUtil = (function (ZPFE) {
    * @returns {Promise<any>}
    * @private
    */
+  /* eslint-disable-next-line camelcase */
   const _zpmFn_zpmGetCurrentNetworkState = function () {
     return new Promise(async (resolve, reject) => {
       let appEnv = await _envInfo()
@@ -597,6 +619,7 @@ const AppDataUtil = (function (ZPFE) {
    * @returns {Promise<any>}
    * @private
    */
+  /* eslint-disable-next-line camelcase */
   const _fn_toastView = function (data) {
     return new Promise(async (resolve, reject) => {
       let appEnv = await _envInfo()
@@ -627,6 +650,7 @@ const AppDataUtil = (function (ZPFE) {
    * @returns {Promise<any>}
    * @private
    */
+  /* eslint-disable-next-line camelcase */
   const _fn_alertView = function (data) {
     return new Promise(async (resolve) => {
       let appEnv = await _envInfo()
@@ -661,20 +685,20 @@ const AppDataUtil = (function (ZPFE) {
    */
   const _weexGetStatusBarHeight = function () {
     return new Promise((resolve) => {
-        let statusBarHeight = 60
-        try {
-            ZPFE.weexGetStatusBarHeight(res => {
-                if (weex.config.env.platform.toLowerCase() === 'ios') {
-                    statusBarHeight = res.status_H * 2 + 20
-                } else {
-                    statusBarHeight = res.status_H * 2 / weex.config.env.scale + 20
-                }
-                resolve(statusBarHeight)
-            })
-        } catch (err) {
-            resolve(60)
-        }
-    })   
+      let statusBarHeight = 60
+      try {
+        ZPFE.weexGetStatusBarHeight(res => {
+          if (weex.config.env.platform.toLowerCase() === 'ios') {
+            statusBarHeight = res.status_H * 2 + 20
+          } else {
+            statusBarHeight = res.status_H * 2 / weex.config.env.scale + 20
+          }
+          resolve(statusBarHeight)
+        })
+      } catch (err) {
+        resolve(60)
+      }
+    })
   }
 
   /**
@@ -710,7 +734,7 @@ const AppDataUtil = (function (ZPFE) {
       try {
         ZPFE.weexRequestNativeShowBestEmployDialog()
         resolve(true)
-      } catch (err) {        
+      } catch (err) {
         resolve(true)
       }
     })
@@ -740,7 +764,7 @@ const AppDataUtil = (function (ZPFE) {
   const _zpmCompanyDetail = function (data) {
     return new Promise(resolve => {
       try {
-        ZPFE.zpmCompanyDetail(data, res => {})
+        ZPFE.zpmCompanyDetail(data, res => { })
         resolve(true)
       } catch (err) {
         resolve(true)
@@ -750,7 +774,7 @@ const AppDataUtil = (function (ZPFE) {
 
   /**
    * 跳转至 原生城市选择页
-   * @params 
+   * @params
    *    - cityCode
    * @returns {Promise<any>}
    *    - cityCode
@@ -762,6 +786,33 @@ const AppDataUtil = (function (ZPFE) {
     return new Promise(resolve => {
       try {
         ZPFE.weexToCitySelectPage(data, res => {
+          resolve(res)
+        })
+      } catch (err) {
+        resolve({})
+      }
+    })
+  }
+
+  /**
+   * 刷新定位
+   * @params 
+   *    - 
+   * @returns {Promise<any>}
+   *    - cityCode
+   *    - cityName
+   *    - cityEnName
+   * @private
+   */
+  const _updateLocation = function () {
+    return new Promise(resolve => {
+      try {
+        ZPFE.fn({
+          name: 'ZPMLocation',
+          params: {
+            type: 'update'
+          }
+        }, res => {
           resolve(res)
         })
       } catch (err) {
@@ -786,6 +837,7 @@ const AppDataUtil = (function (ZPFE) {
     weexJobInfoDetail: _weexJobInfoDetail,
     weexStatusBarStyle: _weexStatusBarStyle,
     weexGoToWeexOrWebViewByUrl: _weexGoToWeexOrWebViewByUrl,
+    weexEnterIMPositionList: _weexEnterIMPositionList,
     weexGoToLogin: _weexGoToLogin,
     weexToYouXuan: _weexToYouXuan,
     weexReportEvt: _weexReportEvt,
@@ -804,7 +856,8 @@ const AppDataUtil = (function (ZPFE) {
     weexRequestNativeShowBestEmployDialog: _weexRequestNativeShowBestEmployDialog,
     weexHomeBestEmployerItemCardClosed: _weexHomeBestEmployerItemCardClosed,
     zpmCompanyDetail: _zpmCompanyDetail,
-    weexToCitySelectPage: _weexToCitySelectPage
+    weexToCitySelectPage: _weexToCitySelectPage,
+    updateLocation: _updateLocation
   }
 })(ZPFE)
 

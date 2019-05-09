@@ -33,10 +33,8 @@
 /**
  * Created by liangshan on 2018/8/6.
  */
-import { StorageUtil, AppDataUtil } from '../../utils/index'
-import * as types from '../mutation-types'
+import { AppDataUtil } from '../../utils/index'
 const stream = weex.requireModule('stream')
-const modal = weex.requireModule('modal')
 const formatGetParams = function (params) {
   let out = []
   for (let p in params) {
@@ -49,7 +47,7 @@ const formatGetParams = function (params) {
 const modulePositions = {
   namespaced: true,
   state: {
-    requestUrl: 'https://capipre.zhaopin.com/capi/position/searchUrgent',
+    requestUrl: 'https://capi.zhaopin.com/capi/position/searchRecommend',
     requestParams: {
       key: '26412474748748',
       s: '1d4f0ci9e2e4d8cz591e13eiu39ok487f'
@@ -91,7 +89,10 @@ const modulePositions = {
           k: state.requestParams.key || '',
           s: state.requestParams.s || '',
           v: appEnv.env.appversion.replace(/\./g, '') || '1.0',
-          version: appEnv.env.appversion
+          version: appEnv.env.appversion,
+          isCompus: '0',
+          resumeVersion: '1',
+          eventScenario: ''
         }, params)
         try {
           stream.fetch({
@@ -103,7 +104,11 @@ const modulePositions = {
             }
           }, async ({ data }) => {
             if (String(data.statusCode) === '200') {
-              resolve(data.data)
+              if (!data.data) {
+                reject(new Error('失败'))
+              } else {
+                resolve(data.data)
+              }
             } else {
               reject(new Error(data.statusDescription))
             }

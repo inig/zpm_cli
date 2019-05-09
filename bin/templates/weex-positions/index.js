@@ -40,11 +40,12 @@ import App from './index.vue'
 import store from './store'
 import * as filters from './filters'
 import mixins from './mixins'
+import { AppDataUtil } from './utils/index.js'
 
 global.Vue = Vue
-try {
-  require('./plugins/index')
-} catch (err) { }
+// try {
+//   require('./plugins/index')
+// } catch (err) { }
 
 if (typeof weex.init === 'function') weex.init(Vue)
 
@@ -102,8 +103,26 @@ Vue.prototype.weexReportEvt = async function (params) {
   AppDataUtil.weexReportEvt(params)
 }
 
+const sa = weex.requireModule('WeexSensorsDataAnalyticsModule')
+Vue.prototype.$sa = function (params) {
+  try {
+    if (params.evtId) {
+      let evtId = params.evtId
+      delete params.evtId
+
+      sa.track(evtId, Object.assign({
+        act_id: 'oper_act_201901',
+        refcode: '',
+        referer: '',
+        $screen_name: ''
+      }, params))
+    }
+  } catch (err) { }
+}
+
 Vue.config.errorHandler = err => {
   console.log(err.message)
 }
 
+// eslint-disable-next-line no-new
 new Vue(Vue.util.extend({ el: '#root', store }, App))

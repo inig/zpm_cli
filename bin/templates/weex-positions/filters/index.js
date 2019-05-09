@@ -7,9 +7,9 @@ export function host (url) {
 }
 
 export function https (url) {
-  const env = weex.config.env || WXEnvironment
+  const env = weex.config.env
   if (env.platform === 'iOS' && typeof url === 'string') {
-    return url.replace(/^http\:/, 'https:')
+    return url.replace(/^http:/, 'https:')
   }
   return url
 }
@@ -34,8 +34,7 @@ function pluralize (time, label) {
 
 export function unescape (text) {
   let res = text || ''
-
-  ;[
+  let a = [
     ['<p>', '\n'],
     ['&amp;', '&'],
     ['&amp;', '&'],
@@ -48,7 +47,8 @@ export function unescape (text) {
     ['&gt;', '>'],
     ['&nbsp;', ' '],
     ['&quot;', '"']
-  ].forEach(pair => {
+  ]
+  a.forEach(pair => {
     res = res.replace(new RegExp(pair[0], 'ig'), pair[1])
   })
 
