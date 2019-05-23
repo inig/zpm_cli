@@ -1,7 +1,7 @@
 {
   "name": "zpm_cli",
   "description": "快速生成weex/vue项目模板",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "author": {
     "name": "智愚",
     "email": "cheenoalive@gmail.com",
